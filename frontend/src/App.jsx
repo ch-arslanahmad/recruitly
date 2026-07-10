@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import JobCard from './components/JobCard'
 import Login from './pages/Login'
+import NavBar from './components/NavBar'
+import NotFound from './pages/NotFound'
 import './App.css'
 
 const initialJobs = [
@@ -18,7 +20,17 @@ function App() {
 
   return (
     <BrowserRouter>
+      <NavBar user={user} />
       <Routes>
+        
+        {
+        
+          /* For testing component itself we put it in a seperate route */
+        
+        
+        
+        }
+
         <Route path="/login" element={
           user ? <Navigate to="/" /> : <Login setUser={setUser} />
         } />

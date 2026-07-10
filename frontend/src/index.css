@@ -90,21 +90,18 @@ p {
 nav {
   background: var(--bg);
   border-bottom: 1px solid var(--border);
-  padding: 16px 32px;
+  padding: 0 32px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   position: sticky;
   top: 0;
   z-index: 100;
+  height: 64px;
 }
 
 nav h1 {
-  font-size: 24px;
+  font-size: 22px;
   color: var(--primary);
-}
-
-nav span {
-  font-size: 14px;
-  color: var(--text-secondary);
+  font-weight: 700;
 }

@@ -1,3 +1,40 @@
+/* Nav Links */
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  list-style: none;
+  height: 100%;
+}
+
+.nav-links li {
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: var(--radius);
+  transition: all 0.15s ease;
+}
+
+.nav-links a:hover {
+  color: var(--primary);
+  background: var(--primary-light);
+}
+
+.nav-links span {
+  font-size: 14px;
+  color: var(--text-secondary);
+  padding: 8px 12px;
+  font-weight: 500;
+}
+
 /* Auth Container */
 .auth-container {
   max-width: 420px;
@@ -142,7 +179,12 @@
 /* Responsive */
 @media (max-width: 640px) {
   nav {
-    padding: 16px;
+    padding: 0 16px;
+  }
+
+  .nav-links a {
+    padding: 8px 10px;
+    font-size: 13px;
   }
 
   .auth-container {
