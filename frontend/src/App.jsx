@@ -31,6 +31,9 @@ function App() {
         
         }
 
+                <Route path="*" element={<NotFound />} />
+
+
         <Route path="/login" element={
           user ? <Navigate to="/" /> : <Login setUser={setUser} />
         } />
