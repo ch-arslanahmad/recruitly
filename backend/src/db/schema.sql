@@ -53,3 +53,13 @@ BEGIN
             -- only applicants can apply for jobs
     END;
 END;
+
+-- Saved Jobs
+
+CREATE TABLE IF NOT EXISTS saved_jobs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL REFERENCES user(id) ON DELETE CASCADE,
+    job_id INTEGER NOT NULL REFERENCES job(id) ON DELETE CASCADE,
+    created_at TEXT DEFAULT (datetime('now', 'localtime'))
+UNIQUE(user_id, job_id); -- so a user can't save something twice.
+);
