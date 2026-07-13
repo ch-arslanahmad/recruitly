@@ -15,7 +15,5 @@ function createDB() {
 
 createDB();
 
-
-
-// module.exports = db;
+module.exports = db;
 
