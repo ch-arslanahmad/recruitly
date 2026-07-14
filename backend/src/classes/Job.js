@@ -1,4 +1,4 @@
-const db = require('../db/database');
+import db from '../db/database.js';
 
 class Job {
   constructor(id, recruiter_id, title, description, location, company, salary, type) {
@@ -11,7 +11,6 @@ class Job {
     this.salary = salary;
     this.type = type;
   }
-
 
   static create(recruiter_id, title, description, location, company, salary, type) {
     db.prepare('INSERT INTO job (recruiter_id, title, description, location, company, salary, type) VALUES (?, ?, ?, ?, ?, ?, ?)').run(recruiter_id, title, description, location, company, salary, type);
@@ -49,7 +48,6 @@ class Job {
       query += " AND salary >= ?";
       params.push(filters.minSalary);
     }
-
     if (filters.recruiter_id) {
       query += " AND recruiter_id = ?";
       params.push(filters.recruiter_id);
@@ -58,7 +56,6 @@ class Job {
     query += " ORDER BY created_at DESC"; // order by most recent first
 
     return db.prepare(query).all(...params);
-
   }
 
   static findByRecruiter(recruiter_id) {
@@ -68,7 +65,6 @@ class Job {
   static update(id, fields) {
 
     let query = "UPDATE job SET ";
-
     let params = [];
 
     if (fields.title) {
@@ -83,7 +79,6 @@ class Job {
       query += "location = ?, ";
       params.push(fields.location);
     }
-
     if(fields.salary) {
       query += "salary = ?, ";
       params.push(fields.salary);
@@ -95,19 +90,15 @@ class Job {
 
     // remove last comma and space
     query = query.slice(0, -2);
-
     query += " WHERE id = ?";
     params.push(id);
 
     db.prepare(query).run(...params);
-
-
   }
 
   static delete(id) {
     db.prepare("DELETE FROM job WHERE id = ?").run(id);
   }
-
 }
 
-module.exports = Job;
+export default Job;

@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS user (
     username TEXT NOT NULL UNIQUE,
     role TEXT NOT NULL CHECK(role IN ('recruiter', 'applicant')),
     password TEXT NOT NULL, -- hashed (still-text) before storing in the database
-    company UNIQUE TEXT, -- only for recruiters
+    company TEXT UNIQUE, -- only for recruiters
     created_at TEXT DEFAULT (datetime('now', 'localtime'))
 );
 

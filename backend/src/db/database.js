@@ -1,6 +1,10 @@
-const Database = require('better-sqlite3');
-const path = require('path');
-const fs = require('fs');
+import Database from 'better-sqlite3';
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url); // get the current file path (from file URL, file:///)
+const __dirname = path.dirname(__filename); // get the current directory path (from file path)
 
 const db = new Database(path.join(__dirname, '..', '..', 'recruitly.db'));
 
@@ -15,5 +19,4 @@ function createDB() {
 
 createDB();
 
-module.exports = db;
-
+export default db;

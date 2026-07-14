@@ -1,4 +1,4 @@
-const db = require('../db/database');
+import db from '../db/database.js';
 
 class Application {
   constructor(id, job_id, candidate_id, status) {
@@ -29,4 +29,4 @@ class Application {
   }
 }
 
-module.exports = Application;
+export default Application;
