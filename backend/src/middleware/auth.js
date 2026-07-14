@@ -7,7 +7,7 @@ function authMiddleware(req, res, next) {
     if (!token) return res.status(401).json({ message: 'No token provided' });
 
 
-    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+    jwt.verify(token, process.env.JWT_SECRET || 'dev-fallback-secret', (err, decoded) => {
         if (err) return res.status(401).json({ message: 'Invalid token' }); // if invalid token then error
         req.user = decoded; // attach user info to req.user
         next(); //  proceed to the next middleware or route handler
