@@ -4,8 +4,8 @@
   "description": "Recruitly API server",
   "main": "src/server.js",
   "scripts": {
-    "dev": "node --watch --env-file=.env src/server.js",
-    "start": "node --env-file=.env src/server.js"
+    "dev": "node --watch src/server.js",
+    "start": "node src/server.js"
   },
   "keywords": [],
   "author": "",
@@ -18,5 +18,7 @@
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "eslint": "^10.7.0"
+  }
 }
