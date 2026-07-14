@@ -1,6 +1,9 @@
 import express from 'express';
 import cors from 'cors';
 import authRoutes from './routes/auth.js';
+import jobRoutes from './routes/jobs.js';
+import applicationRoutes from './routes/applications.js';
+import savedJobRoutes from './routes/savedJobs.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -13,6 +16,9 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/auth', authRoutes); // Use the auth routes for /api/auth endpoints
+app.use('/api/jobs', jobRoutes);
+app.use('/api/applications', applicationRoutes);
+app.use('/api/saved-jobs', savedJobRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
