@@ -28,11 +28,16 @@
   background: var(--primary-light);
 }
 
-.nav-links span {
+.nav-links .logout a {
+  background: var(--primary);
   font-size: 14px;
-  color: var(--text-secondary);
+  color: white;
   padding: 8px 12px;
   font-weight: 500;
+}
+
+.nav-links .logout a:hover {
+  background: none;
 }
 
 /* Auth Container */
@@ -44,6 +49,13 @@
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
 }
+
+.auth-title {
+  text-align: center;
+  font-weight: 800;
+  margin-bottom: 7px;
+}
+
 
 .auth-container p {
   font-size: 14px;
@@ -166,6 +178,7 @@
 .job-card {
   background: var(--bg);
   border-radius: var(--radius-lg);
+  align-content: center;
   padding: 20px;
   box-shadow: var(--shadow);
   border: 1px solid var(--border);
@@ -200,6 +213,24 @@
   flex-wrap: wrap;
   gap: 5px;
   align-items: center;
+  margin-bottom: 16px;
+}
+
+.view-details {
+  display: inline-block;
+  padding: 8px 16px;
+  background: var(--primary);
+  color: white;
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  align-self: flex-start;
+  transition: background 0.15s ease;
+}
+
+.view-details:hover {
+  background: var(--primary-dark);
 }
 
 /* Not Found */

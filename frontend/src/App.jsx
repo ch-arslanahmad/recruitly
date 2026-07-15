@@ -8,26 +8,15 @@ import './App.css'
 
 function App() {
   const [user, setUser] = useState(() => {
-    const session = localStorage.getItem("recruitly_session");
-    return session ? JSON.parse(session) : null;
+    const raw = localStorage.getItem("recruitly_user");
+    return raw ? JSON.parse(raw) : null;
   });
 
   return (
     <BrowserRouter>
       <NavBar user={user} />
       <Routes>
-        
-        {
-        
-          /* For testing component itself we put it in a seperate route */
-        
-        
-        
-        }
-
-                <Route path="*" element={<NotFound />} />
-
-
+        <Route path="*" element={<NotFound />} />  {/* Not found if route not defined */}
         <Route path="/login" element={
           user ? <Navigate to="/" /> : <Login setUser={setUser} />
         } />

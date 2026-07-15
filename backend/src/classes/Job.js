@@ -11,21 +11,21 @@ class Job {
     this.type = type;
   }
 
-  static create({recruiter_id, title, description, location, salary, type}) {
+  static create({ recruiter_id, title, description, location, salary, type }) {
     return db.prepare('INSERT INTO job (recruiter_id, title, description, location, salary, type) VALUES (?, ?, ?, ?, ?, ?)').run(recruiter_id, title, description, location, salary, type);
   }
 
   static findById(id) {
-    return db.prepare("SELECT * FROM job WHERE id = ?").get(id);
+    return db.prepare("SELECT job.*, user.company FROM job JOIN user ON job.recruiter_id = user.id WHERE job.id = ?").get(id);
   }
 
   // example filters
-  
+
   // { type: 'full-time', location: 'remote', minSalary: 50000 }
 
   // return all jobs (with filters)
   static findAll(filters = undefined) {
-    let query = "SELECT * FROM job WHERE 1=1";
+    let query = "SELECT job.*, user.company FROM job JOIN user ON job.recruiter_id = user.id WHERE 1=1";
 
 
     // if no filters, return all jobs
@@ -58,7 +58,7 @@ class Job {
   }
 
   static findByRecruiter(recruiter_id) {
-    return db.prepare("SELECT * FROM job WHERE recruiter_id = ?").all(recruiter_id);
+    return db.prepare("SELECT job.*, user.company FROM job JOIN user ON job.recruiter_id = user.id WHERE recruiter_id = ?").all(recruiter_id);
   }
 
   static update(id, fields) {
@@ -70,19 +70,19 @@ class Job {
       query += "title = ?, ";
       params.push(fields.title);
     }
-    if(fields.description) {
+    if (fields.description) {
       query += "description = ?, ";
       params.push(fields.description);
     }
-    if(fields.location) {
+    if (fields.location) {
       query += "location = ?, ";
       params.push(fields.location);
     }
-    if(fields.salary) {
+    if (fields.salary) {
       query += "salary = ?, ";
       params.push(fields.salary);
     }
-    if(fields.type) {
+    if (fields.type) {
       query += "type = ?, ";
       params.push(fields.type);
     }

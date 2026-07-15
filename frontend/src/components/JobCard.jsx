@@ -1,5 +1,5 @@
+import { Link } from 'react-router-dom';
 import '@fortawesome/fontawesome-free/css/all.min.css';
-
 
 function JobCard({ job }) {
     return (
@@ -13,6 +13,8 @@ function JobCard({ job }) {
             <p><i className="fa-solid fa-dollar-sign"></i> {job.salary}</p>
                 <p><i className="fa-solid fa-clock"></i> {job.type}</p>
                 </div>
+
+            <Link to={`/jobs/${job.id}`} className="view-details">View Details</Link>
         </div>
     );
 }

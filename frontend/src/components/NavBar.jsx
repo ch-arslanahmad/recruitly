@@ -24,7 +24,10 @@ function NavBar({ user }) {
                 ) : (
                     <li><Link to="/login">Sign In</Link></li>
                 )}
-                {user && <li><span>Hi, {user.username}</span></li>}
+                {user && <li className="logout" ><a href="#" onClick={() => {
+                    localStorage.removeItem("recruitly_user"); // remove item from local storage
+                    window.location.href = "/"; // move to home page
+                }}>Logout</a></li>}
             </ul>
         </nav>
     );

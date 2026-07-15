@@ -1,0 +1,8 @@
+{
+  "name": "recruitly",
+  "private": true,
+  "scripts": {
+    "dev": "cd backend && npm run dev & cd frontend && npm run dev",
+    "start": "cd backend && npm start & cd frontend && npx vite --host"
+  }
+}

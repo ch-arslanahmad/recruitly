@@ -3,8 +3,10 @@ import AuthModel from '../components/AuthModel';
 function Login({ setUser }) {
     return (
         <AuthModel
-            onDone={(username, role) => {
-                setUser({ username, role });
+            onAuth={(token, user) => {
+                localStorage.setItem("recruitly_token", token);
+                localStorage.setItem("recruitly_user", JSON.stringify(user));
+                setUser({ token, ...user });
             }}
         />
     )
