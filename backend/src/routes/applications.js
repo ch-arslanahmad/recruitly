@@ -7,7 +7,7 @@ const router = Router();
 function apply(req, res) {
   try {
 
-    Application.create(req.body.job_id, req.user.id);
+    Application.create({ job_id: req.body.job_id, candidate_id: req.user.id });
     res.status(201).json({ message: 'Application submitted successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Error applying: ', error: error.message });

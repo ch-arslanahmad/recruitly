@@ -8,8 +8,8 @@ class Application {
     this.status = status;
   }
 
-  static create(job_id, candidate_id, status = 'applied') {
-    db.prepare("INSERT INTO application (job_id, candidate_id, status) VALUES (?, ?, ?)").run(job_id, candidate_id, status);
+  static create({job_id, candidate_id, status = 'applied'}) {
+    return db.prepare("INSERT INTO application (job_id, candidate_id, status) VALUES (?, ?, ?)").run(job_id, candidate_id, status);
   }
 
   static findById(id) {

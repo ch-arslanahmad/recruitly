@@ -1,19 +1,18 @@
 import db from '../db/database.js';
 
 class Job {
-  constructor(id, recruiter_id, title, description, location, company, salary, type) {
+  constructor(id, recruiter_id, title, description, location, salary, type) {
     this.id = id;
     this.recruiter_id = recruiter_id;
     this.title = title;
     this.description = description;
     this.location = location;
-    this.company = company;
     this.salary = salary;
     this.type = type;
   }
 
-  static create(recruiter_id, title, description, location, company, salary, type) {
-    db.prepare('INSERT INTO job (recruiter_id, title, description, location, company, salary, type) VALUES (?, ?, ?, ?, ?, ?, ?)').run(recruiter_id, title, description, location, company, salary, type);
+  static create({recruiter_id, title, description, location, salary, type}) {
+    return db.prepare('INSERT INTO job (recruiter_id, title, description, location, salary, type) VALUES (?, ?, ?, ?, ?, ?)').run(recruiter_id, title, description, location, salary, type);
   }
 
   static findById(id) {

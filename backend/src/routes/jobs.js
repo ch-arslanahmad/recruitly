@@ -19,9 +19,9 @@ function list(req, res) {
 // create
 function create(req, res) {
     try {
-        const { title, description, company } = req.body;
-        const newJob = Job.create(title, description, company);
-        res.status(201).json(newJob);
+        const { title, description, location, salary, type } = req.body;
+        Job.create({ recruiter_id: req.user.id, title, description, location, salary, type });
+        res.status(201).json({ message: 'Job created successfully' });
     } catch (error) {
         res.status(500).json({ message: 'Error creating job: ', error: error.message });
     }
@@ -32,9 +32,9 @@ function create(req, res) {
 function update(req, res) {
     try {
         const { id } = req.params;
-        const { title, description, company } = req.body;
-        const updatedJob = Job.update(id, title, description, company);
-        res.json(updatedJob);
+        const { title, description, location, salary, type } = req.body;
+        Job.update(id, { title, description, location, salary, type });
+        res.json({ message: 'Job updated successfully' });
     } catch (error) {
         res.status(500).json({ message: 'Error updating job: ', error: error.message });
     }

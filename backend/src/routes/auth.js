@@ -7,21 +7,40 @@ const router = Router();
 
 const SECRET = process.env.JWT_SECRET || 'dev-fallback-secret';
 
+// for new user
 function register(req, res) {
 
   try {
-    req.body.password = bcrypt.hashSync(req.body.password, 10);
+    const existing = User.findByUsername(req.body.username);
+    if (existing) {
+      return res.status(401).json({ message: "Username already taken" });
+    }
 
-    User.create(req.body.name, req.body.username, req.body.password, req.body.role, req.body.company);
+    req.body.password = bcrypt.hashSync(req.body.password, 10); // hash the password
 
-    res.status(201).json({ message: 'User created' });
+    const newUser = new User(null, req.body.name, req.body.username, req.body.password, req.body.role, req.body.company);
+
+
+    const result = User.create(newUser); // create the user in the database
+
+    newUser.id = result.lastInsertRowid;
+
+    let payload = { id: newUser.id, name: newUser.name, role: newUser.role };
+    if (newUser.role === 'recruiter') payload.company = newUser.company;
+
+    const JWTtoken = jwt.sign(payload, SECRET); // generate JWT token (contains token + data)
+
+    // the token contains (token + data)
+    res.status(201).json({ token: JWTtoken, user: payload }); // response with the token for the new user
 
   } catch (error) {
-    res.status(500).json({ message: 'Error creating user: ', error: error.message });
+    res.status(500).json({ message: 'Error creating user: ', error: String(error) });
   }
 
 }
 
+
+// for old user
 function login(req, res) {
 
   try {
@@ -35,11 +54,19 @@ function login(req, res) {
       return res.status(401).json({ message: "Invalid password" });
     }
 
-
     // currently does not check for role, but we can add that later if needed
-    const token = jwt.sign({ id: oldUser.id, role: oldUser.role }, SECRET);
 
-    res.json({ token });
+
+    let payload = { id: oldUser.id, name: oldUser.name, role: oldUser.role };
+
+    if (oldUser.role == "recruiter") payload.company = oldUser.company;
+    // if the user is a recruiter, include the company in the token payload
+
+
+    const JWTtoken = jwt.sign(payload, SECRET);
+
+    res.status(201).json({ token: JWTtoken, user: payload }); // response with the token for the logged in user
+
   } catch (error) {
     res.status(500).json({ message: 'Error logging in: ', error: error.message });
   }
