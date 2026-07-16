@@ -21,10 +21,7 @@ function apply(req: AuthRequest, res: Response) {
         });
         res.status(201).json({ message: "Application submitted successfully" });
     } catch (error) {
-        res.status(500).json({
-            message: "Error applying: ",
-            error: (error as Error).message,
-        });
+        res.status(500).json({ message: "Failed to apply" });
     }
 }
 
@@ -42,10 +39,7 @@ function myApplications(req: AuthRequest, res: Response) {
 
         res.json(applications);
     } catch (error) {
-        res.status(500).json({
-            message: "Error listing: ",
-            error: (error as Error).message,
-        });
+        res.status(500).json({ message: "Failed to list applications" });
     }
 }
 
@@ -56,10 +50,7 @@ function jobApplications(req: AuthRequest, res: Response) {
         const applications = Application.findByJob(id);
         res.json(applications);
     } catch (error) {
-        res.status(500).json({
-            message: "Error listing: ",
-            error: (error as Error).message,
-        });
+        res.status(500).json({ message: "Failed to list applications" });
     }
 }
 
@@ -73,10 +64,7 @@ function updateStatus(req: AuthRequest, res: Response) {
             message: "Application status updated successfully",
         });
     } catch (error) {
-        res.status(500).json({
-            message: "Error updating: ",
-            error: (error as Error).message,
-        });
+        res.status(500).json({ message: "Failed to update status" });
     }
 }
 

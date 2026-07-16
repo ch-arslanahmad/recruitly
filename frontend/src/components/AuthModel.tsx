@@ -78,8 +78,10 @@ function AuthModel({
 
             onAuth(token, user); // pass the user object to the parent component
         } catch (error) {
-            console.error("Error during authentication:", error);
-            setErrors({ general: "An error occurred. Please try again." });
+            if ((error as Error).message === "Failed to fetch")
+                setErrors({ general: "Backend is not running" });
+            else
+                setErrors({ general: "An error occurred. Please try again." });
         }
     }
 

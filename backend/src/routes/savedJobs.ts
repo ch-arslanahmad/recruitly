@@ -10,7 +10,7 @@ function listSaved(req: AuthRequest, res: Response) {
         const savedJobs = User.getSavedJobs(req.user!.id);
         res.json(savedJobs);
     } catch (error) {
-        res.status(500).json({ message: 'Error listing saved jobs: ', error: (error as Error).message });
+        res.status(500).json({ message: 'Failed to list saved jobs' });
     }
 }
 
@@ -20,7 +20,7 @@ function saveJob(req: AuthRequest, res: Response) {
         User.saveJob(req.user!.id, job_id);
         res.status(201).json({ message: 'Job saved successfully' });
     } catch (error) {
-        res.status(500).json({ message: 'Error saving job: ', error: (error as Error).message });
+        res.status(500).json({ message: 'Failed to save job' });
     }
 }
 
@@ -30,7 +30,7 @@ function unsaveJob(req: AuthRequest, res: Response) {
         User.unsaveJob(req.user!.id, jobId);
         res.status(200).json({ message: 'Job unsaved successfully' });
     } catch (error) {
-        res.status(500).json({ message: 'Error removing saved job: ', error: (error as Error).message });
+        res.status(500).json({ message: 'Failed to remove saved job' });
     }
 }
 

@@ -10,7 +10,7 @@ function list(req: Request, res: Response) {
         const jobs = Job.findAll();
         res.json(jobs);
     } catch (error) {
-        res.status(500).json({ message: 'Error listing jobs: ', error: (error as Error).message });
+        res.status(500).json({ message: 'Failed to list jobs  -  check server logs' });
     }
 }
 
@@ -20,7 +20,7 @@ function create(req: AuthRequest, res: Response) {
         Job.create({ recruiter_id: req.user!.id, title, description, location, salary, type });
         res.status(201).json({ message: 'Job created successfully' });
     } catch (error) {
-        res.status(500).json({ message: 'Error creating job: ', error: (error as Error).message });
+        res.status(500).json({ message: 'Failed to create job  -  check server logs' });
     }
 }
 
@@ -31,7 +31,7 @@ function update(req: Request, res: Response) {
         Job.update(id, { title, description, location, salary, type });
         res.json({ message: 'Job updated successfully' });
     } catch (error) {
-        res.status(500).json({ message: 'Error updating job: ', error: (error as Error).message });
+        res.status(500).json({ message: 'Failed to update job  -  check server logs' });
     }
 }
 
@@ -41,7 +41,7 @@ function deleteJob(req: Request, res: Response) {
         Job.delete(id);
         res.json({ message: 'Job deleted' });
     } catch (error) {
-        res.status(500).json({ message: 'Error deleting job: ', error: (error as Error).message });
+        res.status(500).json({ message: 'Failed to delete job  -  check server logs' });
     }
 }
 
@@ -50,7 +50,7 @@ function listMyJobs(req: AuthRequest, res: Response) {
         const jobs = Job.findByRecruiter(req.user!.id);
         res.status(200).json({ message: 'Jobs retrieved successfully', jobs });
     } catch (error) {
-        res.status(500).json({ message: 'Error listing jobs: ', error: (error as Error).message });
+        res.status(500).json({ message: 'Failed to list jobs  -  check server logs' });
     }
 }
 
@@ -63,7 +63,7 @@ function findById(req: Request, res: Response) {
         }
         res.status(200).json({ message: 'Job retrieved successfully', job });
     } catch (error) {
-        res.status(500).json({ message: 'Error finding job: ', error: (error as Error).message });
+        res.status(500).json({ message: 'Failed to find job  -  check server logs' });
     }
 }
 

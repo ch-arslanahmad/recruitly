@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import NavBar from "./components/NavBar";
 import NotFound from "./pages/NotFound";
+import JobDetail from "./pages/JobDetail";
 import Home from "./pages/Home";
 
 import { User } from "./types"; // import only User class
@@ -24,7 +25,6 @@ function App() {
         <BrowserRouter>
             <NavBar user={user} onLogout={onLogout} />
             <Routes>
-                <Route path="*" element={<NotFound />} />{" "}
                 {/* Not found if route not defined */}
                 <Route
                     path="/login"
@@ -42,6 +42,8 @@ function App() {
                         )
                     }
                 />
+                <Route path="/jobs/:id" element={<JobDetail />} />
+                <Route path="*" element={<NotFound />} />{" "}
             </Routes>
         </BrowserRouter>
     );

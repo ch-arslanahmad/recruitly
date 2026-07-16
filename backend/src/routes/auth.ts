@@ -47,10 +47,7 @@ function register(req: Request, res: Response) {
         // the token contains (token + data)
         res.status(201).json({ token: JWTtoken, user: payload }); // response with the token for the new user
     } catch (error) {
-        res.status(500).json({
-            message: "Error creating user: ",
-            error: String(error),
-        });
+        res.status(500).json({ message: 'Failed to register  -  check server logs' });
     }
 }
 
@@ -89,10 +86,7 @@ function login(req: Request, res: Response) {
 
         res.status(201).json({ token: JWTtoken, user: payload }); // response with the token for the logged in user
     } catch (error) {
-        res.status(500).json({
-            message: "Error logging in: ",
-            error: (error as Error).message,
-        });
+        res.status(500).json({ message: 'Failed to login  -  check server logs' });
     }
 }
 
