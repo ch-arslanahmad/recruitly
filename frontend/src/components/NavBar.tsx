@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { User } from "../types"; // import only User class
 
-function NavBar({ user }: { user?: User }) {
+function NavBar({ user, onLogout }: { user?: User; onLogout?: () => void }) {
     return (
         <nav>
             <h1>Recruitly</h1>
@@ -48,8 +48,7 @@ function NavBar({ user }: { user?: User }) {
                         <a
                             href="#"
                             onClick={() => {
-                                localStorage.removeItem("recruitly_user"); // remove item from local storage
-                                window.location.href = "/"; // move to home page
+                                onLogout?.();
                             }}
                         >
                             Logout

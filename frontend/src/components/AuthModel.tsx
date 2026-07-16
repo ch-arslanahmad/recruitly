@@ -12,7 +12,11 @@ interface FormErrors {
     general?: string;
 }
 
-function AuthModel({ onAuth }: { onAuth: (token: string, user: any) => void }) {
+function AuthModel({
+    onAuth,
+}: {
+    onAuth: (token: string, user: User) => void;
+}) {
     const [activeRole, setActiveRole] = useState("applicant");
     const [mode, setMode] = useState("register");
     const [errors, setErrors] = useState<FormErrors>({});
@@ -42,7 +46,9 @@ function AuthModel({ onAuth }: { onAuth: (token: string, user: any) => void }) {
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
-        const user_data = Object.fromEntries(formData.entries()) as unknown as UserForm;
+        const user_data = Object.fromEntries(
+            formData.entries(),
+        ) as unknown as UserForm;
 
         const validationErrors = validate(user_data);
         setErrors(validationErrors);

@@ -15,9 +15,14 @@ function App() {
         return raw ? (JSON.parse(raw) as User) : undefined;
     });
 
+    function onLogout() {
+        localStorage.removeItem("recruitly_user");
+        setUser(undefined);
+    }
+
     return (
         <BrowserRouter>
-            <NavBar user={user} />
+            <NavBar user={user} onLogout={onLogout} />
             <Routes>
                 <Route path="*" element={<NotFound />} />{" "}
                 {/* Not found if route not defined */}
