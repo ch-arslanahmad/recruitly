@@ -1,7 +1,15 @@
-import db from '../db/database.js';
+import db from '../db/database.ts';
 
 class Job {
-  constructor(id, recruiter_id, title, description, location, salary, type) {
+  id: number;
+  recruiter_id: number;
+  title: string;
+  description: string;
+  location: string;
+  salary: number;
+  type: string;
+
+  constructor(id: number, recruiter_id: number, title: string, description: string, location: string, salary: number, type: string) {
     this.id = id;
     this.recruiter_id = recruiter_id;
     this.title = title;
@@ -11,11 +19,11 @@ class Job {
     this.type = type;
   }
 
-  static create({ recruiter_id, title, description, location, salary, type }) {
+  static create({ recruiter_id, title, description, location, salary, type } : { recruiter_id: number, title: string, description: string, location: string, salary: number, type: string }) {
     return db.prepare('INSERT INTO job (recruiter_id, title, description, location, salary, type) VALUES (?, ?, ?, ?, ?, ?)').run(recruiter_id, title, description, location, salary, type);
   }
 
-  static findById(id) {
+  static findById(id: number) {
     return db.prepare("SELECT job.*, user.company FROM job JOIN user ON job.recruiter_id = user.id WHERE job.id = ?").get(id);
   }
 
@@ -24,7 +32,7 @@ class Job {
   // { type: 'full-time', location: 'remote', minSalary: 50000 }
 
   // return all jobs (with filters)
-  static findAll(filters = undefined) {
+  static findAll(filters?: { type?: string; location?: string; minSalary?: number; recruiter_id?: number }) {
     let query = "SELECT job.*, user.company FROM job JOIN user ON job.recruiter_id = user.id WHERE 1=1";
 
 
@@ -57,11 +65,11 @@ class Job {
     return db.prepare(query).all(...params);
   }
 
-  static findByRecruiter(recruiter_id) {
+  static findByRecruiter(recruiter_id: number) {
     return db.prepare("SELECT job.*, user.company FROM job JOIN user ON job.recruiter_id = user.id WHERE recruiter_id = ?").all(recruiter_id);
   }
 
-  static update(id, fields) {
+  static update(id: number, fields: { title?: string; description?: string; location?: string; salary?: number; type?: string }) {
 
     let query = "UPDATE job SET ";
     let params = [];
@@ -95,7 +103,7 @@ class Job {
     db.prepare(query).run(...params);
   }
 
-  static delete(id) {
+  static delete(id: number) {
     db.prepare("DELETE FROM job WHERE id = ?").run(id);
   }
 }
