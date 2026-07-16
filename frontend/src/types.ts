@@ -2,7 +2,8 @@ export interface User {
     id: number;
     name: string;
     username: string;
-    role: 'applicant' | 'recruiter';
+    password?: string;
+    role: "applicant" | "recruiter";
     company?: string | null;
 }
 

@@ -1,15 +1,16 @@
-import AuthModel from '../components/AuthModel';
+import AuthModel from "../components/AuthModel";
+import { User } from "../types";
 
-function Login({ setUser }) {
+function Login({ setUser }: { setUser: (user: User) => void }) {
     return (
         <AuthModel
-            onAuth={(token, user) => {
+            onAuth={(token: string, user: User) => {
                 localStorage.setItem("recruitly_token", token);
                 localStorage.setItem("recruitly_user", JSON.stringify(user));
-                setUser({ token, ...user });
+                setUser(user);
             }}
         />
-    )
+    );
 }
 
 export default Login;

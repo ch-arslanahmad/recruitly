@@ -1,8 +1,8 @@
-import JobCard from './JobCard'
-import { useState } from "react";
+import JobCard from "./JobCard";
+import { Job } from "../types";
+import { useEffect, useState } from "react";
 
-
-function JobBoard({ jobs }) {
+function JobBoard({ jobs }: { jobs: Job[] }) {
     return (
         <div className="home-container">
             <h1>Find your next job</h1>

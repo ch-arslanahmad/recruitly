@@ -1,12 +1,24 @@
 import { useState } from "react";
+import { User } from "../types";
 
-function AuthModel({ onAuth }) {
+type UserForm = Partial<User> & { confirmPassword?: string };
+
+interface FormErrors {
+    username?: string;
+    password?: string;
+    name?: string;
+    company?: string;
+    confirmPassword?: string;
+    general?: string;
+}
+
+function AuthModel({ onAuth }: { onAuth: (token: string, user: any) => void }) {
     const [activeRole, setActiveRole] = useState("applicant");
     const [mode, setMode] = useState("register");
-    const [errors, setErrors] = useState({});
+    const [errors, setErrors] = useState<FormErrors>({});
 
-    function validate(data: User) {
-        let e = {};
+    function validate(data: UserForm) {
+        let e: FormErrors = {};
 
         if (!data.username) e.username = "Username is required";
         if (!data.password) e.password = "Password is required";
@@ -27,10 +39,10 @@ function AuthModel({ onAuth }) {
         return e;
     }
 
-    async function handleSubmit(e) {
+    async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
-        const formData = new FormData(e.target);
-        const user_data = Object.fromEntries(formData.entries());
+        const formData = new FormData(e.currentTarget);
+        const user_data = Object.fromEntries(formData.entries()) as unknown as UserForm;
 
         const validationErrors = validate(user_data);
         setErrors(validationErrors);
