@@ -16,8 +16,8 @@ function list(req: Request, res: Response) {
 
 function create(req: AuthRequest, res: Response) {
     try {
-        const { title, description, location, salary, type } = req.body;
-        Job.create({ recruiter_id: req.user!.id, title, description, location, salary, type });
+        const { title, about_role, location, salary, type, requirements, responsibilities } = req.body;
+        Job.create({ recruiter_id: req.user!.id, title, about_role, location, salary, type, requirements, responsibilities });
         res.status(201).json({ message: 'Job created successfully' });
     } catch (error) {
         res.status(500).json({ message: 'Failed to create job  -  check server logs' });
@@ -27,8 +27,8 @@ function create(req: AuthRequest, res: Response) {
 function update(req: Request, res: Response) {
     try {
         const id = Number(req.params.id);
-        const { title, description, location, salary, type } = req.body;
-        Job.update(id, { title, description, location, salary, type });
+        const { title, about_role, location, salary, type, requirements, responsibilities } = req.body;
+        Job.update(id, { title, about_role, location, salary, type, requirements, responsibilities });
         res.json({ message: 'Job updated successfully' });
     } catch (error) {
         res.status(500).json({ message: 'Failed to update job  -  check server logs' });

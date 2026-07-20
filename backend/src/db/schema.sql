@@ -15,7 +15,9 @@ CREATE TABLE IF NOT EXISTS job (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     recruiter_id INTEGER NOT NULL REFERENCES user(id) ON DELETE CASCADE,
     title TEXT NOT NULL,
-    description TEXT NOT NULL,
+    about_role TEXT NOT NULL,
+    requirements TEXT,
+    responsibilities TEXT,
     location TEXT NOT NULL,
     salary INTEGER NOT NULL, -- in USD($).
     type TEXT NOT NULL CHECK(type IN ('full-time', 'part-time', 'contract', 'remote')),

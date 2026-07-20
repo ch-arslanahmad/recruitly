@@ -1,7 +1,4 @@
 {
-  "compilerOptions": {
-    "noEmit": true
-  },
   "references": [
     { "path": "./backend" },
     { "path": "./frontend" }

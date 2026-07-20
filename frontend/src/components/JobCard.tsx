@@ -16,7 +16,7 @@ function JobCard({ job }: { job: Job }) {
                     {job.location}
                 </p>
                 <p>
-                    <i className="fa-solid fa-dollar-sign"></i> {job.salary}
+            <i className="fa-solid fa-dollar-sign"></i> {`$${job.salary}`}
                 </p>
                 <p>
                     <i className="fa-solid fa-clock"></i> {job.type}
