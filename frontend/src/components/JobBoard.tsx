@@ -1,3 +1,5 @@
+// Applicant view: browse all jobs (GET /api/jobs)
+// Recruiter view: their posted jobs with applicant count (GET /api/jobs/my)
 import JobCard from "./JobCard";
 import { Job } from "../types";
 import { useEffect, useState } from "react";

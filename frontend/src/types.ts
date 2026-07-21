@@ -11,12 +11,14 @@ export interface Job {
     id: number;
     recruiter_id: number;
     title: string;
-    description: string;
+    about_role: string;
+    requirements?: string; // act as array on run-time
+    responsibilities?: string; // act as string array on run-time
     location: string;
     salary: number;
     type: string;
     created_at?: string;
-    company?: string; // joined from user table
+    company?: string;
 }
 
 export interface Application {

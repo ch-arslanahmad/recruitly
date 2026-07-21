@@ -9,17 +9,17 @@ function JobCard({ job }: { job: Job }) {
 
             <div className="card-details">
                 <p>
-                    <i className="fa-solid fa-briefcase"></i> {job.company}
+                    <i className="fa-solid fa-briefcase card-icon"></i> {job.company}
                 </p>
                 <p>
-                    <i className="fa-solid fa-map-marker-alt"></i>{" "}
+                    <i className="fa-solid fa-map-marker-alt card-icon"></i>{" "}
                     {job.location}
                 </p>
                 <p>
-            <i className="fa-solid fa-dollar-sign"></i> {`$${job.salary}`}
+            <i className="fa-solid fa-dollar-sign card-icon"></i> {`$${job.salary}`}
                 </p>
                 <p>
-                    <i className="fa-solid fa-clock"></i> {job.type}
+                    <i className="fa-solid fa-clock card-icon"></i> {job.type}
                 </p>
             </div>
 
