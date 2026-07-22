@@ -403,6 +403,7 @@
 
 .side-bar button:hover:not(:disabled) {
     background: var(--primary-dark);
+    color: white;
 }
 
 .side-bar button:disabled {
@@ -411,8 +412,46 @@
     cursor: default;
 }
 
-/* Not Found */
-.not-found {
+.sidebar-actions {
+    display: flex;
+    gap: 14px;
+    margin-top: 12px;
+}
+
+.sidebar-actions button {
+    flex: 1;
+}
+
+.side-bar .bookmark-btn {
+    padding: 12px 16px;
+    background: var(--bg);
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    margin-top: 12px;
+    transition: all 0.15s ease;
+}
+
+.side-bar .bookmark-btn:hover {
+    background: var(--primary-light);
+    color: var(--primary);
+    border-color: var(--primary);
+}
+
+.side-bar .bookmark-btn.saved {
+    background: var(--primary);
+    color: var(--text-inverse);
+    border-color: var(--primary);
+}
+
+.side-bar .bookmark-btn.saved:hover {
+    background: var(--primary-dark);
+    border-color: var(--primary-dark);
+}
+
+/* Error Page */
+.error-page {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -421,7 +460,7 @@
     text-align: center;
 }
 
-.not-found h1 {
+.error-page h1 {
     font-size: 96px;
     font-weight: 700;
     color: var(--primary);
@@ -429,8 +468,23 @@
     margin-bottom: 8px;
 }
 
-.not-found p {
+.error-page p {
     font-size: 18px;
+    color: var(--text-secondary);
+}
+
+.error-page a {
+    margin-top: 20px;
+    padding: 10px 24px;
+    background: var(--primary);
+    color: var(--text-inverse);
+    text-decoration: none;
+    border-radius: var(--radius);
+    font-weight: 600;
+}
+
+.error-page a:hover {
+    background: var(--primary-dark);
 }
 
 /* Responsive */

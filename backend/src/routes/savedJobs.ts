@@ -34,8 +34,20 @@ function unsaveJob(req: AuthRequest, res: Response) {
     }
 }
 
+function checkSaved(req: AuthRequest, res: Response) {
+    try {
+        const jobId = Number(req.params.jobId);
+        const isSaved = User.isSavedJob(req.user!.id, jobId);
+        res.json({ isSaved });
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to check saved job' });
+    }
+}
+
 router.get('/', authMiddleware, listSaved);
 router.post('/', authMiddleware, saveJob);
 router.delete('/:jobId', authMiddleware, unsaveJob);
+
+router.get('/check/:jobId', authMiddleware, checkSaved);
 
 export default router;

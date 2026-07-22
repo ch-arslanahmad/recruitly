@@ -69,7 +69,7 @@ function findById(req: Request, res: Response) {
 
 router.get('/', list);
 router.get('/my', authMiddleware, requireRole('recruiter'), listMyJobs);
-router.get('/:id', findById);
+router.get('/:id', authMiddleware, requireRole('applicant'), findById);
 router.post('/', authMiddleware, requireRole('recruiter'), create);
 router.put('/:id', authMiddleware, requireRole('recruiter'), update);
 router.delete('/:id', authMiddleware, requireRole('recruiter'), deleteJob);

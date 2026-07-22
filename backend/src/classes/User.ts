@@ -60,6 +60,11 @@ class User {
         return db.prepare(query).all(userID);
     }
 
+    static isSavedJob(userID: number, jobID: number) {
+        const query = "SELECT * FROM saved_jobs WHERE user_id = ? AND job_id = ?";
+        return db.prepare(query).get(userID, jobID) !== undefined;
+    }
+
     static saveJob(userId: number, jobId: number) {
         return db
             .prepare("INSERT INTO saved_jobs (user_id, job_id) VALUES (?, ?)")
