@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { User } from "../types";
+import { api } from "../api";
 
 type UserForm = Partial<User> & { confirmPassword?: string };
 
@@ -48,7 +49,7 @@ function AuthModel({
         const formData = new FormData(e.currentTarget);
         const user_data = Object.fromEntries(
             formData.entries(),
-        ) as unknown as UserForm;
+        ) as UserForm;
 
         const validationErrors = validate(user_data);
         setErrors(validationErrors);
@@ -56,27 +57,17 @@ function AuthModel({
         if (Object.keys(validationErrors).length > 0) return;
 
         try {
-            const response = await fetch(`/api/auth/${mode}`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ ...user_data, role: activeRole }),
-            });
+            const fn = (mode === "login" ? api.auth.login : api.auth.register);
+            const data = await fn({ ...user_data, role: activeRole });
 
-            const data = await response.json();
-
-            if (!response.ok) {
+            if (data.token) {
+                const { token, user } = data;
+                onAuth(token, user); // pass the user object to the parent component
+            } else {
                 setErrors({
-                    general:
-                        data.message || "An error occurred. Please try again.",
+                    general: data.message || "An error occurred. Please try again.",
                 });
-                return;
             }
-
-            const { token, user } = data;
-
-            onAuth(token, user); // pass the user object to the parent component
         } catch (error) {
             if ((error as Error).message === "Failed to fetch")
                 setErrors({ general: "Backend is not running" });

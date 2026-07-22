@@ -6,6 +6,7 @@
 import { useEffect, useRef, useState, FormEvent } from "react";
 import { useParams } from "react-router-dom";
 import type { Job } from "../types";
+import { api } from "../api";
 
 function JobDetail() {
   const [job, setJob] = useState<Job | null>(null);
@@ -16,76 +17,36 @@ function JobDetail() {
   const { id } = useParams<{ id: string }>();
 
 
-    useEffect(() => {
-      const token = localStorage.getItem("recruitly_token");
-      if (!token) return;
+  useEffect(() => {
+    const t = localStorage.getItem("recruitly_token");
+    if (!t) return;
 
-      fetch(`/api/saved-jobs/check/${id}`, {
-        headers: {
-          "Authorization": `Bearer ${token}`,
-        },
-      })
-        .then((res) => {
-          if (!res.ok)
-            throw new Error("Failed to check saved job");
-          return res.json();
-        })
-        .then((data) => {
-          setSaved(data.isSaved);
-        })
-        .catch((err) => {
-          alert(err.message);
-        });
-    }, [id])
+    api.saved.check(id!).then((data) => {
+      setSaved(data.isSaved);
+    }).catch((err) => {
+      alert(err.message);
+    });
+  }, [id])
 
   function toggleSave() {
-    const token = localStorage.getItem("recruitly_token");
-    if (!token) return;
+    const t = localStorage.getItem("recruitly_token");
+    if (!t || !job) return;
 
-    const method = saved ? "DELETE" : "POST";
-    const url = saved ? `/api/saved-jobs/${job!.id}` : `/api/saved-jobs`;
-
-    fetch(url, {
-      method,
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`,
-      },
-      body: method === "POST" ? JSON.stringify({ job_id: job!.id }) : undefined,
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to toggle save");
-        setSaved(!saved);
-      })
-      .catch((err) => {
-        alert(err.message);
-      });
+    api.saved.toggle(job.id, saved)
+      .then(() => setSaved(!saved))
+      .catch((err) => alert(err.message));
   }
 
 
   useEffect(() => {
-    const token = localStorage.getItem("recruitly_token");
-    if (!token) return;
+    const t = localStorage.getItem("recruitly_token");
+    if (!t) return;
 
-    fetch(`/api/jobs/${id}`, {
-      headers: {
-        "Authorization": `Bearer ${token}`,
-      },
-    })
-      .then((res) => {
-        if (!res.ok)
-          throw new Error("Failed to fetch job");
-        return res.json();
-      })
-      .then((data) => {
-        setJob(data.job as Job);
-        console.log("Raw Data" + data);
-
-        console.log("\nObject Data" + JSON.stringify(data as Job))
-      })
-      .catch((err) => {
-        alert(err.message);
-      });
+    api.jobs.get(id!).then((data) => {
+      setJob(data.job as Job);
+    }).catch((err) => {
+      alert(err.message);
+    });
   }, [id])
 
 

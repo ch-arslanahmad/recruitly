@@ -1,16 +1,13 @@
 import { useEffect, useState } from "react";
 import JobBoard from "../components/JobBoard";
+import { api } from "../api";
 
 function Home({ role }: { role: string | undefined }) {
     const [jobs, setJobs] = useState([]);
     const [error, setError] = useState("");
 
     useEffect(() => {
-        fetch("/api/jobs")
-            .then((response) => {
-                if (!response.ok) throw new Error("Server error");
-                return response.json();
-            })
+        api.jobs.getAll()
             .then((data) => setJobs(data))
             .catch((err) => {
                 if (err.message === "Failed to fetch")
