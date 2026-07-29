@@ -1,0 +1,426 @@
+import { useEffect, useState } from "react";
+import { User } from "../types";
+import { api } from "../api";
+import "./Dashboard.css";
+
+function Dashboard({ user }: { user: User }) {
+    const [jobs, setJobs] = useState([]);
+
+    useEffect(() => {
+        api.recruiter.job.getMy().then((res) => {
+            console.log("My Jobs:", res.jobs.length);
+            setJobs(res.jobs);
+        });
+    }, [user.id]);
+
+    return (
+        <div className="dashboard">
+            <div className="header-bar">
+                <div className="company-info">
+                    <div className="company-logo">R</div>
+                    <div>
+                        <div className="company-name">{user?.company}</div>
+                        <div className="company-role">Employer Account</div>
+                    </div>
+                </div>
+                <div className="user-avatar">A</div>
+            </div>
+
+            <h1>Dashboard</h1>
+            <p className="sub">
+                Welcome back, {user?.name}! Here's what's happening with your
+                jobs.
+            </p>
+
+            {/* Stats */}
+            <div className="stats">
+                <div className="stat-card">
+                    <svg
+                        width="22"
+                        height="22"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="#2563eb"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                    >
+                        <rect
+                            x="2"
+                            y="7"
+                            width="20"
+                            height="14"
+                            rx="2"
+                            ry="2"
+                        />
+                        <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
+                    </svg>
+                    <div className="num">{jobs.length}</div>
+                    <div className="label">Jobs Posted</div>
+                </div>
+                <div className="stat-card">
+                    <svg
+                        width="22"
+                        height="22"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="#10b981"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                    >
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                        <circle cx="9" cy="7" r="4" />
+                        <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                    </svg>
+                    <div className="num">5</div>
+                    <div className="label">Total Applicants</div>
+                </div>
+                <div className="stat-card">
+                    <svg
+                        width="22"
+                        height="22"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="#f59e0b"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                    >
+                        <circle cx="12" cy="12" r="10" />
+                        <polyline points="12 6 12 12 16 14" />
+                    </svg>
+                    <div className="num">2</div>
+                    <div className="label">New This Week</div>
+                </div>
+                <div className="stat-card">
+                    <svg
+                        width="22"
+                        height="22"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="#8b5cf6"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                    >
+                        <rect
+                            x="3"
+                            y="4"
+                            width="18"
+                            height="18"
+                            rx="2"
+                            ry="2"
+                        />
+                        <line x1="16" y1="2" x2="16" y2="6" />
+                        <line x1="8" y1="2" x2="8" y2="6" />
+                        <line x1="3" y1="10" x2="21" y2="10" />
+                    </svg>
+                    <div className="num">1</div>
+                    <div className="label">Interviews Scheduled</div>
+                </div>
+            </div>
+
+            <div className="layout">
+                <div className="main">
+                    <div className="top-bar">
+                        <div className="top-bar-left">
+                            <span style={{ fontWeight: 600, color: "#333" }}>
+                                Your Job Listings
+                            </span>
+                            <a href="#" className="view-all">
+                                View All &rarr;
+                            </a>
+                        </div>
+                        <button className="post-btn">
+                            <svg
+                                width="16"
+                                height="16"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="white"
+                                strokeWidth="2.5"
+                                strokeLinecap="round"
+                            >
+                                <line x1="12" y1="5" x2="12" y2="19" />
+                                <line x1="5" y1="12" x2="19" y2="12" />
+                            </svg>
+                            Post New Job
+                        </button>
+                    </div>
+
+                    <div className="job-table">
+                        <div className="table-header">
+                            <div className="col-title">Job Title</div>
+                            <div className="col-status">Status</div>
+                            <div className="col-apps">Applicants</div>
+                            <div className="col-actions">Actions</div>
+                        </div>
+
+                        <div className="table-row">
+                            <div className="col-title">
+                                Software Engineer
+                                <span>
+                                    Lahore &middot; full-time &middot; $150,000
+                                </span>
+                            </div>
+                            <div className="col-status">
+                                <span className="badge active">Active</span>
+                            </div>
+                            <div className="col-apps">2</div>
+                            <div className="col-actions">
+                                <button className="icon-btn edit-btn">
+                                    <svg
+                                        width="15"
+                                        height="15"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="2"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                    >
+                                        <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+                                    </svg>
+                                </button>
+                                <button className="icon-btn delete-btn">
+                                    <svg
+                                        width="15"
+                                        height="15"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="2"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                    >
+                                        <path d="M3 6h18" />
+                                        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                                        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="table-row">
+                            <div className="col-title">
+                                Frontend Developer
+                                <span>
+                                    Remote &middot; remote &middot; $120,000
+                                </span>
+                            </div>
+                            <div className="col-status">
+                                <span className="badge active">Active</span>
+                            </div>
+                            <div className="col-apps">1</div>
+                            <div className="col-actions">
+                                <button className="icon-btn edit-btn">
+                                    <svg
+                                        width="15"
+                                        height="15"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="2"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                    >
+                                        <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+                                    </svg>
+                                </button>
+                                <button className="icon-btn delete-btn">
+                                    <svg
+                                        width="15"
+                                        height="15"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="2"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                    >
+                                        <path d="M3 6h18" />
+                                        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                                        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="table-row">
+                            <div className="col-title">
+                                Intern - Web Development
+                                <span>
+                                    Lahore &middot; part-time &middot; $30,000
+                                </span>
+                            </div>
+                            <div className="col-status">
+                                <span className="badge paused">Paused</span>
+                            </div>
+                            <div className="col-apps">0</div>
+                            <div className="col-actions">
+                                <button className="icon-btn edit-btn">
+                                    <svg
+                                        width="15"
+                                        height="15"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="2"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                    >
+                                        <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+                                    </svg>
+                                </button>
+                                <button className="icon-btn delete-btn">
+                                    <svg
+                                        width="15"
+                                        height="15"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="2"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                    >
+                                        <path d="M3 6h18" />
+                                        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                                        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="sidebar">
+                    <div className="quick-card">
+                        <h3>Quick Actions</h3>
+                        <ul>
+                            <li>
+                                <svg
+                                    width="16"
+                                    height="16"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="#2563eb"
+                                    strokeWidth="2.5"
+                                    strokeLinecap="round"
+                                >
+                                    <line x1="12" y1="5" x2="12" y2="19" />
+                                    <line x1="5" y1="12" x2="19" y2="12" />
+                                </svg>
+                                Post a New Job
+                            </li>
+                            <li>
+                                <svg
+                                    width="16"
+                                    height="16"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="#2563eb"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                >
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                    <circle cx="12" cy="12" r="3" />
+                                </svg>
+                                View All Applicants
+                            </li>
+                            <li>
+                                <svg
+                                    width="16"
+                                    height="16"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="#2563eb"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                >
+                                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                                </svg>
+                                Message Candidates
+                            </li>
+                            <li>
+                                <svg
+                                    width="16"
+                                    height="16"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="#2563eb"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                >
+                                    <circle cx="12" cy="12" r="3" />
+                                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                                </svg>
+                                Edit Company Profile
+                            </li>
+                        </ul>
+                    </div>
+                    <hr />
+                    <div className="quick-card">
+                        <h3>Recent Activity</h3>
+                        <ul>
+                            <li>
+                                <svg
+                                    width="16"
+                                    height="16"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="#888"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                >
+                                    <circle cx="12" cy="12" r="10" />
+                                    <polyline points="12 6 12 12 16 14" />
+                                </svg>
+                                Ahmed applied to Software Engineer
+                            </li>
+                            <li>
+                                <svg
+                                    width="16"
+                                    height="16"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="#888"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                >
+                                    <circle cx="12" cy="12" r="10" />
+                                    <polyline points="12 6 12 12 16 14" />
+                                </svg>
+                                Fatima applied to Frontend Developer
+                            </li>
+                            <li>
+                                <svg
+                                    width="16"
+                                    height="16"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="#888"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                >
+                                    <circle cx="12" cy="12" r="10" />
+                                    <polyline points="12 6 12 12 16 14" />
+                                </svg>
+                                Fatima applied to Software Engineer
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+export default Dashboard;
