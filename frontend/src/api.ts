@@ -22,7 +22,8 @@ export const api = {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(data),
             }).then((r) => {
-                if (!r.ok) throw { status: r.status, message: "Registration failed" };
+                if (!r.ok)
+                    throw { status: r.status, message: "Registration failed" };
                 return r.json();
             }),
     },
@@ -30,54 +31,94 @@ export const api = {
     jobs: {
         getAll: () =>
             fetch("/api/jobs").then((r) => {
-                if (!r.ok) throw { status: r.status, message: "Failed to fetch jobs" };
+                if (!r.ok)
+                    throw { status: r.status, message: "Failed to fetch jobs" };
                 return r.json();
             }),
 
-        get: (id: string) =>
+        get: (id: number) =>
             fetch(`/api/jobs/${id}`, { headers: authHeaders() }).then((r) => {
                 if (!r.ok)
                     throw { status: r.status, message: "Failed to fetch job" };
                 return r.json();
             }),
-    },
 
-    applications: {
-        getJob: (jobId: number) =>
-            fetch(`/api/jobs/${jobId}`).then((r) => {
-                if (!r.ok) throw { status: r.status, message: "Failed to fetch job" };
-                return r.json();
-            }),
-    },
+        saved: {
+            check: (id: number) =>
+                fetch(`/api/saved-jobs/check/${id}`, {
+                    headers: authHeaders(),
+                }).then((r) => {
+                    if (!r.ok)
+                        throw {
+                            status: r.status,
+                            message: "Failed to check saved job",
+                        };
+                    return r.json();
+                }),
 
-    saved: {
-        check: (id: string) =>
-            fetch(`/api/saved-jobs/check/${id}`, {
-                headers: authHeaders(),
-            }).then((r) => {
-                if (!r.ok) throw { status: r.status, message: "Failed to check saved job" };
-                return r.json();
-            }),
+            toggle: async (jobId: number, isSaved: boolean) => {
+                const method = isSaved ? "DELETE" : "POST";
+                const url = isSaved
+                    ? `/api/saved-jobs/${jobId}`
+                    : "/api/saved-jobs";
 
-        toggle: async (jobId: number, isSaved: boolean) => {
-            const method = isSaved ? "DELETE" : "POST";
-            const url = isSaved
-                ? `/api/saved-jobs/${jobId}`
-                : "/api/saved-jobs";
-
-            return fetch(url, {
-                method,
-                headers: {
-                    "Content-Type": "application/json",
-                    ...authHeaders(),
-                },
-                body:
-                    method === "POST"
-                        ? JSON.stringify({ job_id: jobId })
-                        : undefined,
-            }).then((r) => {
-                if (!r.ok) throw { status: r.status, message: "Failed to toggle save" };
-            });
+                return fetch(url, {
+                    method,
+                    headers: {
+                        "Content-Type": "application/json",
+                        ...authHeaders(),
+                    },
+                    body:
+                        method === "POST"
+                            ? JSON.stringify({ job_id: jobId })
+                            : undefined,
+                }).then((r) => {
+                    if (!r.ok)
+                        throw {
+                            status: r.status,
+                            message: "Failed to toggle save",
+                        };
+                });
+            },
         },
     },
+
+    recruiter: {
+        job: {
+            getMy: () => {
+                return fetch(`/api/jobs/my`, { headers: authHeaders() }).then(
+                    (r) => {
+                        if (!r.ok)
+                            throw {
+                                status: r.status,
+                                message: "Failed to fetch my jobs.. ",
+                            };
+                        return r.json();
+                    },
+                );
+            },
+            stats: () =>
+                fetch(`/api/jobs/stats`, {
+                    headers: authHeaders(),
+                }).then((r) => {
+                    if (!r.ok)
+                        throw {
+                            status: r.status,
+                            message: "Failed to fetch job stats",
+                        };
+                    return r.json();
+                }),
+        },
+    },
+    applications: {
+            getJob: (jobId: number) =>
+                fetch(`/api/jobs/${jobId}`).then((r) => {
+                    if (!r.ok)
+                        throw {
+                            status: r.status,
+                            message: "Failed to fetch job",
+                        };
+                    return r.json();
+                }),
+        },
 };
