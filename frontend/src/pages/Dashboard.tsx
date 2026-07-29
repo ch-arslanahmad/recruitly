@@ -1,10 +1,23 @@
 import { useEffect, useState } from "react";
-import { User } from "../types";
+import { User, Job } from "../types";
 import { api } from "../api";
 import "./Dashboard.css";
 
+interface Stats {
+    total_jobs: number;
+    total_applications: number;
+    jobs_last_7_days: number;
+    total_interviews: number;
+}
+
 function Dashboard({ user }: { user: User }) {
-    const [jobs, setJobs] = useState([]);
+    const [jobs, setJobs] = useState<Job[]>([]);
+    const [stats, setStats] = useState<Stats>({
+        total_jobs: 0,
+        total_applications: 0,
+        jobs_last_7_days: 0,
+        total_interviews: 0,
+    });
 
     useEffect(() => {
         api.recruiter.job.getMy().then((res) => {
@@ -12,6 +25,13 @@ function Dashboard({ user }: { user: User }) {
             setJobs(res.jobs);
         });
     }, [user.id]);
+
+    useEffect(() => {
+        api.recruiter.job.stats().then((res) => {
+            console.log("recruiter stats loaded.", res);
+            setStats(res);
+        });
+    }, [jobs]);
 
     return (
         <div className="dashboard">
@@ -34,6 +54,7 @@ function Dashboard({ user }: { user: User }) {
 
             {/* Stats */}
             <div className="stats">
+
                 <div className="stat-card">
                     <svg
                         width="22"
@@ -55,7 +76,7 @@ function Dashboard({ user }: { user: User }) {
                         />
                         <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
                     </svg>
-                    <div className="num">{jobs.length}</div>
+                    <div className="num">{stats.total_jobs}</div>
                     <div className="label">Jobs Posted</div>
                 </div>
                 <div className="stat-card">
@@ -74,7 +95,7 @@ function Dashboard({ user }: { user: User }) {
                         <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
                         <path d="M16 3.13a4 4 0 0 1 0 7.75" />
                     </svg>
-                    <div className="num">5</div>
+                    <div className="num">{stats.total_applications}</div>
                     <div className="label">Total Applicants</div>
                 </div>
                 <div className="stat-card">
@@ -91,7 +112,7 @@ function Dashboard({ user }: { user: User }) {
                         <circle cx="12" cy="12" r="10" />
                         <polyline points="12 6 12 12 16 14" />
                     </svg>
-                    <div className="num">2</div>
+                    <div className="num">{stats.jobs_last_7_days}</div>
                     <div className="label">New This Week</div>
                 </div>
                 <div className="stat-card">
@@ -117,7 +138,7 @@ function Dashboard({ user }: { user: User }) {
                         <line x1="8" y1="2" x2="8" y2="6" />
                         <line x1="3" y1="10" x2="21" y2="10" />
                     </svg>
-                    <div className="num">1</div>
+                    <div className="num">{stats.total_interviews}</div>
                     <div className="label">Interviews Scheduled</div>
                 </div>
             </div>
@@ -158,140 +179,81 @@ function Dashboard({ user }: { user: User }) {
                             <div className="col-actions">Actions</div>
                         </div>
 
-                        <div className="table-row">
-                            <div className="col-title">
-                                Software Engineer
-                                <span>
-                                    Lahore &middot; full-time &middot; $150,000
-                                </span>
+                        {jobs.length === 0 ? (
+                            <div className="table-row">
+                                <div
+                                    className="col-title"
+                                    style={{
+                                        textAlign: "center",
+                                        color: "#888",
+                                        width: "100%",
+                                    }}
+                                >
+                                    No jobs posted yet.
+                                </div>
                             </div>
-                            <div className="col-status">
-                                <span className="badge active">Active</span>
-                            </div>
-                            <div className="col-apps">2</div>
-                            <div className="col-actions">
-                                <button className="icon-btn edit-btn">
-                                    <svg
-                                        width="15"
-                                        height="15"
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        strokeWidth="2"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                    >
-                                        <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
-                                    </svg>
-                                </button>
-                                <button className="icon-btn delete-btn">
-                                    <svg
-                                        width="15"
-                                        height="15"
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        strokeWidth="2"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                    >
-                                        <path d="M3 6h18" />
-                                        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-                                        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-
-                        <div className="table-row">
-                            <div className="col-title">
-                                Frontend Developer
-                                <span>
-                                    Remote &middot; remote &middot; $120,000
-                                </span>
-                            </div>
-                            <div className="col-status">
-                                <span className="badge active">Active</span>
-                            </div>
-                            <div className="col-apps">1</div>
-                            <div className="col-actions">
-                                <button className="icon-btn edit-btn">
-                                    <svg
-                                        width="15"
-                                        height="15"
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        strokeWidth="2"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                    >
-                                        <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
-                                    </svg>
-                                </button>
-                                <button className="icon-btn delete-btn">
-                                    <svg
-                                        width="15"
-                                        height="15"
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        strokeWidth="2"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                    >
-                                        <path d="M3 6h18" />
-                                        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-                                        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-
-                        <div className="table-row">
-                            <div className="col-title">
-                                Intern - Web Development
-                                <span>
-                                    Lahore &middot; part-time &middot; $30,000
-                                </span>
-                            </div>
-                            <div className="col-status">
-                                <span className="badge paused">Paused</span>
-                            </div>
-                            <div className="col-apps">0</div>
-                            <div className="col-actions">
-                                <button className="icon-btn edit-btn">
-                                    <svg
-                                        width="15"
-                                        height="15"
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        strokeWidth="2"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                    >
-                                        <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
-                                    </svg>
-                                </button>
-                                <button className="icon-btn delete-btn">
-                                    <svg
-                                        width="15"
-                                        height="15"
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        strokeWidth="2"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                    >
-                                        <path d="M3 6h18" />
-                                        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-                                        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
+                        ) : (
+                            jobs.map((job) => (
+                                <div key={job.id} className="table-row">
+                                    <div className="col-title">
+                                        {job.title}
+                                        <span>
+                                            {job.location} &middot;{" "}
+                                            {job.type} &middot; $
+                                            {job.salary.toLocaleString()}
+                                        </span>
+                                    </div>
+                                    <div className="col-status">
+                                        <span
+                                            className={`badge ${
+                                                job.status === "closed"
+                                                    ? "closed"
+                                                    : "active"
+                                            }`}
+                                        >
+                                            {job.status === "closed"
+                                                ? "Closed"
+                                                : "Active"}
+                                        </span>
+                                    </div>
+                                    <div className="col-apps">
+                                        {job.applicant_count}
+                                    </div>
+                                    <div className="col-actions">
+                                        <button className="icon-btn edit-btn">
+                                            <svg
+                                                width="15"
+                                                height="15"
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                strokeWidth="2"
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                            >
+                                                <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+                                            </svg>
+                                        </button>
+                                        <button className="icon-btn delete-btn">
+                                            <svg
+                                                width="15"
+                                                height="15"
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                strokeWidth="2"
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                            >
+                                                <path d="M3 6h18" />
+                                                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                                                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            ))
+                        )}
                     </div>
                 </div>
 

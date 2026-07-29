@@ -243,12 +243,12 @@
 .badge.active::before {
     background: #166534;
 }
-.badge.paused {
-    background: #fef9c3;
-    color: #854d0e;
+.badge.closed {
+    background: #f3f4f6;
+    color: #6b7280;
 }
-.badge.paused::before {
-    background: #854d0e;
+.badge.closed::before {
+    background: #6b7280;
 }
 
 /* Layout */

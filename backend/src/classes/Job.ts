@@ -44,6 +44,7 @@ class Job {
         type,
         requirements,
         responsibilities,
+        status = "open",
     }: {
         recruiter_id: number;
         title: string;
@@ -53,14 +54,16 @@ class Job {
         type: string;
         requirements?: string;
         responsibilities?: string;
+        status?: string;
     }) {
         return db
             .prepare(
-                "INSERT INTO job (recruiter_id, title, about_role, location, salary, type, requirements, responsibilities) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                "INSERT INTO job (recruiter_id, title, status, about_role, location, salary, type, requirements, responsibilities) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
             )
             .run(
                 recruiter_id,
                 title,
+                status,
                 about_role,
                 location,
                 salary,
@@ -76,6 +79,14 @@ class Job {
                 "SELECT job.*, user.company FROM job JOIN user ON job.recruiter_id = user.id WHERE job.id = ?",
             )
             .get(id) as Job | undefined;
+    }
+
+    static findByRecruiter(recruiter_id: number): Job[] {
+        return db
+            .prepare(
+                "SELECT job.*, user.company, (SELECT COUNT(*) FROM application WHERE job_id = job.id) AS applicant_count FROM job JOIN user ON job.recruiter_id = user.id WHERE recruiter_id = ? ORDER BY job.created_at DESC",
+            )
+            .all(recruiter_id) as Job[];
     }
 
     // ALL STATs NEEDED by a recruiter for himself
@@ -133,13 +144,7 @@ class Job {
         return db.prepare(query).all(...params) as Job[];
     }
 
-    static findByRecruiter(recruiter_id: number): Job[] {
-        return db
-            .prepare(
-                "SELECT job.*, user.company FROM job JOIN user ON job.recruiter_id = user.id WHERE recruiter_id = ?",
-            )
-            .all(recruiter_id) as Job[];
-    }
+
 
     static update(
         id: number,

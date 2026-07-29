@@ -86,6 +86,7 @@ function deleteJob(req: Request, res: Response) {
     }
 }
 
+// for recruiters to list their own jobs
 function listMyJobs(req: AuthRequest, res: Response) {
     try {
         const jobs = Job.findByRecruiter(req.user!.id);
@@ -127,7 +128,7 @@ function getStats(req: AuthRequest, res: Response) {
 router.get("/", list);
 router.get("/my", authMiddleware, requireRole("recruiter"), listMyJobs);
 router.get("/stats", authMiddleware, requireRole("recruiter"), getStats);
-router.get("/:id", authMiddleware, requireRole("applicant"), findById);
+router.get("/:id", findById);
 router.post("/", authMiddleware, requireRole("recruiter"), create);
 router.put("/:id", authMiddleware, requireRole("recruiter"), update);
 router.delete("/:id", authMiddleware, requireRole("recruiter"), deleteJob);

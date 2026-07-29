@@ -18,7 +18,9 @@ export interface Job {
     salary: number;
     type: string;
     created_at?: string;
+    applicant_count: number;
     company?: string;
+    status: "open" | "closed";
 }
 
 export interface Application {

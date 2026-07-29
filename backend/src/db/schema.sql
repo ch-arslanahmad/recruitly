@@ -1,4 +1,4 @@
--- 
+--
 CREATE TABLE IF NOT EXISTS user (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS job (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     recruiter_id INTEGER NOT NULL REFERENCES user(id) ON DELETE CASCADE,
     title TEXT NOT NULL,
+    status TEXT NOT NULL CHECK(status IN ('open', 'closed')),
     about_role TEXT NOT NULL,
     requirements TEXT,
     responsibilities TEXT,
