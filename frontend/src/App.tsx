@@ -6,6 +6,8 @@ import ErrorPage from "./pages/ErrorPage";
 import JobDetail from "./pages/JobDetail";
 import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
+import JobListing from "./pages/JobListing";
+import Application from "./pages/Application";
 
 import { User } from "./types"; // import only User class
 
@@ -55,6 +57,45 @@ function App() {
                                 <Home role={user.role} /> : <Dashboard user={user} />
                         ) : (
                             <Navigate to="/login" />
+                        )
+                    }
+                />
+                <Route
+                    path="/jobs"
+                    element={
+                        user?.role === "applicant" ? (
+                            <JobListing mode="all" />
+                        ) : (
+                            <ErrorPage
+                                errorCode={403}
+                                errorMessage="You are not authorized to access this page."
+                            />
+                        )
+                    }
+                />
+                <Route
+                    path="/saved-jobs"
+                    element={
+                        user?.role === "applicant" ? (
+                            <JobListing mode="saved" />
+                        ) : (
+                            <ErrorPage
+                                errorCode={403}
+                                errorMessage="You are not authorized to access this page."
+                            />
+                        )
+                    }
+                />
+                <Route
+                    path="/applications"
+                    element={
+                        user?.role === "applicant" ? (
+                            <Application />
+                        ) : (
+                            <ErrorPage
+                                errorCode={403}
+                                errorMessage="You are not authorized to access this page."
+                            />
                         )
                     }
                 />

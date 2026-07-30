@@ -70,9 +70,13 @@ function JobDetail() {
 
     function handleSubmit(e: FormEvent<HTMLFormElement>) {
         e.preventDefault();
-        console.log("Form submitted!");
-        setApplied(true);
-        dialogRef.current?.close();
+        api.applications
+            .apply(jobId)
+            .then(() => {
+                setApplied(true);
+                dialogRef.current?.close();
+            })
+            .catch((err) => alert(err.message || "Failed to apply"));
     }
 
     return (

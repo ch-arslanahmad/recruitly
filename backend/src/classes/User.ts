@@ -56,7 +56,7 @@ class User {
 
     static getSavedJobs(userID: number) {
         const query =
-            "SELECT job.*, user.company AS company, saved_jobs.created_at AS saved_at FROM saved_jobs JOIN job ON job.id = saved_jobs.job_id JOIN user ON user.id = job.recruiter_id WHERE saved_jobs.user_id = ?";
+            "SELECT job.*, user.company AS company, saved_jobs.saved_at AS saved_at FROM saved_jobs JOIN job ON job.id = saved_jobs.job_id JOIN user ON user.id = job.recruiter_id WHERE saved_jobs.user_id = ?";
         return db.prepare(query).all(userID);
     }
 

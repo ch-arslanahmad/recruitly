@@ -28,6 +28,11 @@
     background: var(--primary-light);
 }
 
+.nav-links a.active {
+    color: var(--primary);
+    background: var(--primary-light);
+}
+
 .nav-links .logout a {
     background: var(--primary);
     font-size: 14px;
@@ -448,6 +453,12 @@
 .side-bar .bookmark-btn.saved:hover {
     background: var(--primary-dark);
     border-color: var(--primary-dark);
+}
+
+.page-title {
+    text-align: center;
+    font-size: 32px;
+    margin-top: 24px;
 }
 
 /* Error Page */

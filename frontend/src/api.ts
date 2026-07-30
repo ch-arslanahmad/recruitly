@@ -44,6 +44,18 @@ export const api = {
             }),
 
         saved: {
+            getAll: () =>
+                fetch("/api/saved-jobs", { headers: authHeaders() }).then(
+                    (r) => {
+                        if (!r.ok)
+                            throw {
+                                status: r.status,
+                                message: "Failed to fetch saved jobs",
+                            };
+                        return r.json();
+                    },
+                ),
+
             check: (id: number) =>
                 fetch(`/api/saved-jobs/check/${id}`, {
                     headers: authHeaders(),
@@ -83,6 +95,20 @@ export const api = {
         },
     },
 
+    saved: {
+        getAll: () =>
+            fetch("/api/saved-jobs", { headers: authHeaders() }).then(
+                (r) => {
+                    if (!r.ok)
+                        throw {
+                            status: r.status,
+                            message: "Failed to fetch saved jobs",
+                        };
+                    return r.json();
+                },
+            ),
+    },
+
     recruiter: {
         job: {
             getMy: () => {
@@ -111,14 +137,33 @@ export const api = {
         },
     },
     applications: {
-            getJob: (jobId: number) =>
-                fetch(`/api/jobs/${jobId}`).then((r) => {
+        my: () =>
+            fetch("/api/applications/my", { headers: authHeaders() }).then(
+                (r) => {
                     if (!r.ok)
                         throw {
                             status: r.status,
-                            message: "Failed to fetch job",
+                            message: "Failed to fetch applications",
                         };
                     return r.json();
-                }),
-        },
+                },
+            ),
+
+        apply: (jobId: number) =>
+            fetch("/api/applications", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    ...authHeaders(),
+                },
+                body: JSON.stringify({ job_id: jobId }),
+            }).then((r) => {
+                if (!r.ok)
+                    throw {
+                        status: r.status,
+                        message: "Failed to apply",
+                    };
+                return r.json();
+            }),
+    },
 };

@@ -1,5 +1,8 @@
-import { Link } from "react-router-dom";
-import { User } from "../types"; // import only User class
+import { NavLink } from "react-router-dom";
+import { User } from "../types";
+
+const activeClass = ({ isActive }: { isActive: boolean }) =>
+    isActive ? "active" : "";
 
 function NavBar({ user, onLogout }: { user?: User; onLogout?: () => void }) {
     return (
@@ -10,37 +13,37 @@ function NavBar({ user, onLogout }: { user?: User; onLogout?: () => void }) {
                     user.role === "applicant" ? (
                         <>
                             <li>
-                                <Link to="/">Home</Link>
+                                <NavLink to="/" end className={activeClass}>Home</NavLink>
                             </li>
                             <li>
-                                <Link to="/jobs">Jobs</Link>
+                                <NavLink to="/jobs" className={activeClass}>Jobs</NavLink>
                             </li>
                             <li>
-                                <Link to="/applications">Applications</Link>
+                                <NavLink to="/application" className={activeClass}>Applications</NavLink>
                             </li>
                             <li>
-                                <Link to="/saved-jobs">Saved Jobs</Link>
+                                <NavLink to="/saved-jobs" className={activeClass}>Saved Jobs</NavLink>
                             </li>
                         </>
                     ) : (
                         <>
                             <li>
-                                <Link to="/">Home</Link>
+                                <NavLink to="/" end className={activeClass}>Home</NavLink>
                             </li>
                             <li>
-                                <Link to="/my-jobs">My Jobs</Link>
+                                <NavLink to="/my-jobs" className={activeClass}>My Jobs</NavLink>
                             </li>
                             <li>
-                                <Link to="/post-job">Post a Job</Link>
+                                <NavLink to="/post-job" className={activeClass}>Post a Job</NavLink>
                             </li>
                             <li>
-                                <Link to="/applicants">Applicants</Link>
+                                <NavLink to="/applicants" className={activeClass}>Applicants</NavLink>
                             </li>
                         </>
                     )
                 ) : (
                     <li>
-                        <Link to="/login">Sign In</Link>
+                        <NavLink to="/login" className={activeClass}>Sign In</NavLink>
                     </li>
                 )}
                 {user && (

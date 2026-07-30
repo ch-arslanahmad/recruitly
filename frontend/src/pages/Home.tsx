@@ -18,7 +18,7 @@ function Home({ role }: { role: string | undefined }) {
 
     if (error) return <p style={{ color: "red" }}>{error}</p>;
 
-    return <JobBoard jobs={jobs} />;
+    return <JobBoard jobs={jobs} title="Find your next job" description="Search from thousands of job listings." />;
 }
 
 export default Home;
