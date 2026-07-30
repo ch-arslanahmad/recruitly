@@ -39,6 +39,7 @@ function create(req: AuthRequest, res: Response) {
         });
         res.status(201).json({ message: "Job created successfully" });
     } catch (error) {
+        console.error("Create job error:", error);
         res.status(500).json({
             message: "Failed to create job  -  check server logs",
         });

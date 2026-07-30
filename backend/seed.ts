@@ -29,3 +29,5 @@ db.prepare('INSERT INTO saved_jobs (user_id, job_id) VALUES (?, ?)').run(3, 2);
 db.prepare('INSERT INTO saved_jobs (user_id, job_id) VALUES (?, ?)').run(4, 3);
 
 console.log('Seed complete!');
+console.log('Recruiters: ali_h / password123, sara_k / password123');
+console.log('Applicants: ahmed_r / password123, fatima_n / password123');
