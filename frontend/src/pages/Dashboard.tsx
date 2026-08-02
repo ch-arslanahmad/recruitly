@@ -13,6 +13,7 @@ interface Stats {
 
 function Dashboard({ user }: { user: User }) {
   const [jobs, setJobs] = useState<Job[]>([]);
+  const [error, setError] = useState("");
   const [stats, setStats] = useState<Stats>({
     total_jobs: 0,
     total_applications: 0,
@@ -39,6 +40,7 @@ function Dashboard({ user }: { user: User }) {
       })
       .catch((err) => {
         console.error("Failed to fetch my jobs:", err);
+        setError(err.message || "Failed to load your jobs");
       });
 
     api.recruiter.job
@@ -49,8 +51,11 @@ function Dashboard({ user }: { user: User }) {
       })
       .catch((err) => {
         console.error("Failed to fetch recruiter stats", err);
+        setError(err.message || "Failed to load stats");
       });
   }, [user.id]);
+
+  if (error) return <p style={{ color: "red" }}>{error}</p>;
 
   function updateJob(jobId: number, updated: Partial<Job>) {
     api.recruiter.job

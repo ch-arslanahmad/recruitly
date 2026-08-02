@@ -5,6 +5,7 @@ import { api } from '../api';
 function Application() {
   const [applications, setApplications] = useState<ApplicationType[]>([]);
   const [jobs, setJobs] = useState<Record<number, Job>>({});
+  const [error, setError] = useState("");
 
   useEffect(() => {
     api.applications.my()
@@ -21,8 +22,10 @@ function Application() {
           })
         );
       })
-      .catch((err) => alert(err.message));
+      .catch((err) => setError(err.message));
   }, []);
+
+  if (error) return <p style={{ color: "red" }}>{error}</p>;
 
   if (applications.length === 0) {
     return (

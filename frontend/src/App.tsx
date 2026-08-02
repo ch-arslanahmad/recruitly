@@ -6,7 +6,7 @@ import ErrorPage from "./pages/ErrorPage";
 import JobDetail from "./pages/JobDetail";
 import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
-import JobListing from "./pages/JobListing";
+import JobBoard from "./components/JobBoard";
 import Application from "./pages/Application";
 
 import { User } from "./types"; // import only User class
@@ -54,7 +54,7 @@ function App() {
                     element={
                         user?.role ? (
                             user?.role == "applicant" ?
-                                <Home role={user.role} /> : <Dashboard user={user} />
+                                <Home /> : <Dashboard user={user} />
                         ) : (
                             <Navigate to="/login" />
                         )
@@ -64,7 +64,7 @@ function App() {
                     path="/jobs"
                     element={
                         user?.role === "applicant" ? (
-                            <JobListing mode="all" />
+                            <JobBoard mode="all" page_title="Job Listings" page_description="All job listings" />
                         ) : (
                             <ErrorPage
                                 errorCode={403}
@@ -77,7 +77,7 @@ function App() {
                     path="/saved-jobs"
                     element={
                         user?.role === "applicant" ? (
-                            <JobListing mode="saved" />
+                            <JobBoard mode="saved" page_title="Saved Jobs" page_description="Your saved jobs" />
                         ) : (
                             <ErrorPage
                                 errorCode={403}
