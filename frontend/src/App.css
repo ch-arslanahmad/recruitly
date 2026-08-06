@@ -121,7 +121,9 @@
     font-weight: 600;
     margin-top: 8px;
     cursor: pointer;
-    transition: background 0.15s ease, transform 0.1s ease;
+    transition:
+        background 0.15s ease,
+        transform 0.1s ease;
 }
 
 .auth-container form button[type="submit"]:hover {
@@ -206,12 +208,13 @@
 /* Status badge (cards) */
 .status-badge {
     display: inline-block;
-    padding: 2px 10px;
+    padding: 2px 2px;
     border-radius: 999px;
     font-size: 12px;
     font-weight: 600;
     text-transform: capitalize;
     white-space: nowrap;
+    border: none;
 }
 
 .status-badge.applied {
@@ -345,11 +348,14 @@
     margin-bottom: 12px;
 }
 
-.job-card p {
+.job-card p,
+.job-card button {
     font-size: 14px;
     display: flex;
     align-items: center;
     gap: 8px;
+    background: none;
+    border: none;
 }
 
 .job-card .card-icon {
@@ -420,7 +426,9 @@
     color: var(--text-secondary);
     padding: 4px 8px;
     border-radius: var(--radius);
-    transition: color 0.15s ease, background 0.15s ease;
+    transition:
+        color 0.15s ease,
+        background 0.15s ease;
 }
 
 .dialog-close:hover {
