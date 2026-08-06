@@ -55,6 +55,17 @@ function updateStatus(req: AuthRequest, res: Response) {
   try {
     const id = Number(req.params.id);
     const status = req.body.status;
+    const validStatuses = ["applied", "interviewing", "offered", "rejected"];
+
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ message: "Invalid application status" });
+    }
+
+    const existing = Application.findById(id);
+    if (!existing) {
+      return res.status(404).json({ message: "Application not found" });
+    }
+
     Application.updateStatus(id, status);
     res.status(200).json({
       message: "Application status updated successfully",

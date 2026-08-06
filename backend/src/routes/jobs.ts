@@ -27,7 +27,7 @@ function create(req: AuthRequest, res: Response) {
             requirements,
             responsibilities,
         } = req.body;
-        Job.create({
+        const result = Job.create({
             recruiter_id: req.user!.id,
             title,
             about_role,
@@ -37,7 +37,8 @@ function create(req: AuthRequest, res: Response) {
             requirements,
             responsibilities,
         });
-        res.status(201).json({ message: "Job created successfully" });
+        const job = Job.findById(Number(result.lastInsertRowid));
+        res.status(201).json({ ...job, applicant_count: 0 });
     } catch (error) {
         console.error("Create job error:", error);
         res.status(500).json({
