@@ -40,6 +40,16 @@ function NavBar({ user, onLogout }: { user?: User; onLogout?: () => void }) {
                   Home
                 </NavLink>
               </li>
+              <li>
+                <NavLink to="/my-jobs" className={activeClass}>
+                  My Jobs
+                </NavLink>
+              </li>
+              <li>
+                <NavLink to="/applicants" className={activeClass}>
+                  Applicants
+                </NavLink>
+              </li>
             </>
           )
         ) : (

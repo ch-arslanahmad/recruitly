@@ -13,8 +13,11 @@ export const api = {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
-      }).then((r) => {
-        if (!r.ok) throw { status: r.status, message: "Login failed" };
+      }).then(async (r) => {
+        if (!r.ok) {
+          const body = await r.json().catch(() => ({}));
+          throw { status: r.status, message: body.message || "Login failed" };
+        }
         return r.json();
       }),
 
@@ -108,15 +111,17 @@ export const api = {
           method: "POST",
           headers: { "Content-Type": "application/json", ...authHeaders() },
           body: JSON.stringify(data),
-        }).then((r) => {
-          console.log("Status:", r.status);
-          if (!r.ok)
-            throw { status: r.status, message: "Failed to create job" };
-          return r.json();
-        }).then((res) => {
-          console.log("Response:", res);
-          return res;
-        });
+        })
+          .then((r) => {
+            console.log("Status:", r.status);
+            if (!r.ok)
+              throw { status: r.status, message: "Failed to create job" };
+            return r.json();
+          })
+          .then((res) => {
+            console.log("Response:", res);
+            return res;
+          });
       },
       getMy: async () => {
         return fetch(`/api/jobs/my`, { headers: authHeaders() }).then((r) => {
@@ -138,6 +143,19 @@ export const api = {
             throw {
               status: r.status,
               message: "Failed to update job status",
+            };
+          return r.json();
+        });
+      },
+      remove: async (id: number) => {
+        return fetch(`/api/jobs/${id}`, {
+          method: "DELETE",
+          headers: authHeaders(),
+        }).then((r) => {
+          if (!r.ok)
+            throw {
+              status: r.status,
+              message: "Failed to delete job",
             };
           return r.json();
         });
@@ -179,6 +197,17 @@ export const api = {
           throw {
             status: r.status,
             message: "Failed to apply",
+          };
+        return r.json();
+      }),
+    getByJob: (jobId: number) =>
+      fetch(`/api/applications/job/${jobId}`, {
+        headers: authHeaders(),
+      }).then((r) => {
+        if (!r.ok)
+          throw {
+            status: r.status,
+            message: "Failed to fetch applications",
           };
         return r.json();
       }),

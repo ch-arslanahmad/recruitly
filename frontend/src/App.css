@@ -217,6 +217,33 @@
     color: var(--primary);
 }
 
+/* Application page cards */
+.application-card p {
+    margin: 4px 0;
+}
+
+.application-card .meta {
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+
+.application-card .meta .card-icon {
+    color: var(--text-secondary);
+}
+
+.application-card .meta span {
+    color: var(--border);
+}
+
+.application-card .view-details {
+    margin-top: 12px;
+}
+
+.application-card h2.placeholder {
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
 .card-details {
     display: flex;
     flex-wrap: wrap;

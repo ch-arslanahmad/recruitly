@@ -6,75 +6,71 @@ import Application from "../classes/Application.js";
 const router = Router();
 
 function apply(req: AuthRequest, res: Response) {
-    try {
-        let user_id: number | undefined = req.user?.id;
+  try {
+    let user_id: number | undefined = req.user?.id;
 
-        if (!user_id) {
-            return res
-                .status(400)
-                .json({ message: "Unauthorized, ID required" });
-        }
-
-        Application.create({
-            job_id: req.body.job_id,
-            candidate_id: user_id,
-        });
-        res.status(201).json({ message: "Application submitted successfully" });
-    } catch (error) {
-        res.status(500).json({ message: "Failed to apply" });
+    if (!user_id) {
+      return res.status(400).json({ message: "Unauthorized, ID required" });
     }
+
+    Application.create({
+      job_id: req.body.job_id,
+      candidate_id: user_id,
+    });
+    res.status(201).json({ message: "Application submitted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to apply" });
+  }
 }
 
 function myApplications(req: AuthRequest, res: Response) {
-    try {
-        let user_id: number | undefined = req.user?.id;
+  try {
+    let user_id: number | undefined = req.user?.id;
 
-        if (!user_id) {
-            return res
-                .status(400)
-                .json({ message: "Unauthorized, ID required" });
-        }
-
-        const applications = Application.findByCandidate(user_id);
-
-        res.json(applications);
-    } catch (error) {
-        res.status(500).json({ message: "Failed to list applications" });
+    if (!user_id) {
+      return res.status(400).json({ message: "Unauthorized, ID required" });
     }
+
+    const applications = Application.findByCandidate(user_id);
+
+    res.json(applications);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to list applications" });
+  }
 }
 
 // @route   GET /applications/job/:id, get all applications for a specific job
 function jobApplications(req: AuthRequest, res: Response) {
-    try {
-        const id = Number(req.params.id);
-        const applications = Application.findByJob(id);
-        res.json(applications);
-    } catch (error) {
-        res.status(500).json({ message: "Failed to list applications" });
-    }
+  try {
+    const id = Number(req.params.id);
+    const applications = Application.findJobApplicants(id);
+    res.json(applications);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to list applications" });
+  }
 }
 
 // @route   PUT /applications/:id, update the status of an application
 function updateStatus(req: AuthRequest, res: Response) {
-    try {
-        const id = Number(req.params.id);
-        const status = req.body.status;
-        Application.updateStatus(id, status);
-        res.status(200).json({
-            message: "Application status updated successfully",
-        });
-    } catch (error) {
-        res.status(500).json({ message: "Failed to update status" });
-    }
+  try {
+    const id = Number(req.params.id);
+    const status = req.body.status;
+    Application.updateStatus(id, status);
+    res.status(200).json({
+      message: "Application status updated successfully",
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to update status" });
+  }
 }
 
 router.post("/", authMiddleware, requireRole("applicant"), apply);
 router.get("/my", authMiddleware, requireRole("applicant"), myApplications);
 router.get(
-    "/job/:id",
-    authMiddleware,
-    requireRole("recruiter"),
-    jobApplications,
+  "/job/:id",
+  authMiddleware,
+  requireRole("recruiter"),
+  jobApplications,
 );
 router.put("/:id", authMiddleware, requireRole("recruiter"), updateStatus);
 

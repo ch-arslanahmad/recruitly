@@ -35,9 +35,15 @@ function JobBoard({
         </>
       )}
       <div className="card-list">
-        {jobs.map((job) => (
-          <JobCard key={job.id} job={job} />
-        ))}
+        {jobs.length === 0 ? (
+          <p>
+            {mode === "saved"
+              ? "You haven't saved any jobs yet."
+              : "No jobs found right now. Check back soon."}
+          </p>
+        ) : (
+          jobs.map((job) => <JobCard key={job.id} job={job} />)
+        )}
       </div>
     </div>
   );

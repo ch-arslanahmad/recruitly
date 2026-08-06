@@ -69,10 +69,11 @@ function AuthModel({
                 });
             }
         } catch (error) {
-            if ((error as Error).message === "Failed to fetch")
+            const err = error as { status?: number; message?: string };
+            if (err.message === "Failed to fetch" || !err.status)
                 setErrors({ general: "Backend is not running" });
             else
-                setErrors({ general: "An error occurred. Please try again." });
+                setErrors({ general: err.message || "An error occurred. Please try again." });
         }
     }
 

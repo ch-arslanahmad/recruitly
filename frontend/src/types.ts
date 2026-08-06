@@ -31,6 +31,14 @@ export interface Application {
     created_at?: string;
 }
 
+export interface JobApplicant {
+    application_id: number;
+    applicant_id: number;
+    candidate_name: string;
+    status: string;
+    created_at?: string;
+}
+
 export interface AuthResponse {
     token: string;
     user: User;
