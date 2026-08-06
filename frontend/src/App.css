@@ -171,6 +171,69 @@
     margin-bottom: 32px;
 }
 
+.applicants-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.view-toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg);
+    color: var(--primary);
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.15s;
+}
+
+.view-toggle-btn:hover {
+    border-color: var(--primary);
+    background: var(--primary-light);
+}
+
+.view-toggle-btn.active {
+    background: var(--primary);
+    color: var(--text-inverse);
+    border-color: var(--primary);
+}
+
+/* Status badge (cards) */
+.status-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: capitalize;
+    white-space: nowrap;
+}
+
+.status-badge.applied {
+    background: var(--primary-light);
+    color: var(--primary);
+}
+
+.status-badge.interviewing {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.status-badge.offered {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.status-badge.rejected {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
 .card-list {
     display: flex;
     flex-wrap: wrap;
@@ -180,6 +243,78 @@
 .card-list > * {
     flex: 1 1 calc(50% - 8px);
     min-width: 280px;
+}
+
+/* Applicants table view */
+.applicants-table {
+    background: var(--bg);
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+}
+
+.applicants-header-row,
+.applicants-row {
+    display: flex;
+    padding: 14px 24px;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+}
+
+.applicants-header-row {
+    background: var(--bg-secondary);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.applicants-row:last-child {
+    border-bottom: none;
+}
+
+.applicants-row .col-job {
+    flex: 3;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.applicants-row .col-job span {
+    display: block;
+    font-weight: 400;
+    color: var(--text-secondary);
+    font-size: 13px;
+    margin-top: 2px;
+}
+
+.applicants-header-row .col-job,
+.applicants-header-row .col-name,
+.applicants-header-row .col-status,
+.applicants-header-row .col-date {
+    color: var(--text-secondary);
+}
+
+.col-name {
+    flex: 2;
+}
+
+.col-status {
+    flex: 1;
+    text-align: center;
+}
+
+.col-date {
+    flex: 1;
+    text-align: right;
+    color: var(--text-secondary);
+    font-size: 13px;
+}
+
+.applicants-empty {
+    text-align: center;
+    color: var(--text-secondary);
+    width: 100%;
 }
 
 /* Job Card */
@@ -201,6 +336,11 @@
 }
 
 .job-card h2 {
+    font-size: 20px;
+    margin-bottom: 12px;
+}
+
+.job-card h3 {
     font-size: 20px;
     margin-bottom: 12px;
 }

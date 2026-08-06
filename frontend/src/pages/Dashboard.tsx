@@ -2,6 +2,7 @@ import { useEffect, useState, useRef, FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { User, Job } from "../types";
 import { api } from "../api";
+import JobTable from "../components/JobTable";
 import "./Dashboard.css";
 
 interface Stats {
@@ -226,73 +227,17 @@ function Dashboard({ user }: { user: User }) {
               </button>
             </div>
 
-            <div className="job-table">
-              <div className="table-header">
-                <div className="col-title">Job Title</div>
-                <div className="col-status">Status</div>
-                <div className="col-apps">Applicants</div>
-                <div className="col-actions">Edit</div>
-              </div>
-
-              {jobs.length === 0 ? (
-                <div className="table-row">
-                  <div
-                    className="col-title"
-                    style={{
-                      textAlign: "center",
-                      color: "#888",
-                      width: "100%",
-                    }}
-                  >
-                    No jobs posted yet.
-                  </div>
-                </div>
-              ) : (
-                jobs.map((job) => (
-                  <div key={job.id} className="table-row">
-                    <div className="col-title">
-                      {job.title}
-                      <span>
-                        {job.location} &middot; {job.type} &middot; $
-                        {job.salary.toLocaleString()}
-                      </span>
-                    </div>
-                    <div className="col-status">
-                      <button
-                        onClick={() =>
-                          updateJob(job.id, {
-                            ...job,
-                            status: job.status === "closed" ? "open" : "closed",
-                          })
-                        }
-                        className={`badge ${
-                          job.status === "closed" ? "closed" : "active"
-                        }`}
-                      >
-                        {job.status === "closed" ? "Closed" : "Active"}
-                      </button>
-                    </div>
-                    <div className="col-apps">{job.applicant_count}</div>
-                    <div className="col-actions">
-                      <button className="icon-btn edit-btn">
-                        <svg
-                          width="15"
-                          height="15"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
-                        </svg>
-                      </button>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
+            <JobTable
+              jobs={jobs}
+              actionsLabel="Edit"
+              emptyMessage="No jobs posted yet."
+              onToggleStatus={(job) =>
+                updateJob(job.id, {
+                  ...job,
+                  status: job.status === "closed" ? "open" : "closed",
+                })
+              }
+            />
           </div>
 
           <div className="sidebar">

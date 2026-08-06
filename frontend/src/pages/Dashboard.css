@@ -170,6 +170,11 @@
 .table-row:last-child {
     border-bottom: none;
 }
+.table-empty {
+    text-align: center;
+    color: var(--text-secondary);
+    width: 100%;
+}
 .col-title {
     flex: 3;
     font-weight: 600;
