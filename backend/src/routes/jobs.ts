@@ -57,6 +57,7 @@ function update(req: Request, res: Response) {
             type,
             requirements,
             responsibilities,
+            status,
         } = req.body;
         Job.update(id, {
             title,
@@ -66,6 +67,7 @@ function update(req: Request, res: Response) {
             type,
             requirements,
             responsibilities,
+            status,
         });
         res.json({ message: "Job updated successfully" });
     } catch (error) {

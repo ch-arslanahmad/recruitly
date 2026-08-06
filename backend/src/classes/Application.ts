@@ -38,25 +38,32 @@ class Application {
     return db.prepare("SELECT * FROM application WHERE id = ?").get(id);
   }
 
-  static findByJob(job_id: number) {
-    return db.prepare("SELECT * FROM application WHERE job_id = ?").all(job_id);
-  }
-
-  static findByCandidate(candidate_id: number) {
+  static findByJob(job_id: number, limit = 10, offset = 0) {
     return db
-      .prepare("SELECT * FROM application WHERE candidate_id = ?")
-      .all(candidate_id);
+      .prepare(
+        "SELECT * FROM application WHERE job_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?",
+      )
+      .all(job_id, limit, offset);
   }
 
-  static findJobApplicants(job_id: number) {
+  static findByCandidate(candidate_id: number, limit = 10, offset = 0) {
+    return db
+      .prepare(
+        "SELECT * FROM application WHERE candidate_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?",
+      )
+      .all(candidate_id, limit, offset);
+  }
+
+  static findJobApplicants(job_id: number, limit = 10, offset = 0) {
     const query: string = `SELECT app.id AS application_id, applicant.id AS applicant_id,
       applicant.name AS candidate_name, app.status, app.created_at
       FROM application AS app
       JOIN user AS applicant ON app.candidate_id = applicant.id
       WHERE app.job_id = ?
-      ORDER BY app.created_at DESC;`;
+      ORDER BY app.created_at DESC
+      LIMIT ? OFFSET ?;`;
 
-    return db.prepare(query).all(job_id);
+    return db.prepare(query).all(job_id, limit, offset);
   }
 
   static updateStatus(id: number, status: string) {

@@ -54,10 +54,10 @@ class User {
         return db.prepare("SELECT * FROM user WHERE id = ?").get(id);
     }
 
-    static getSavedJobs(userID: number) {
+    static getSavedJobs(userID: number, limit = 10, offset = 0) {
         const query =
-            "SELECT job.*, user.company AS company, saved_jobs.saved_at AS saved_at FROM saved_jobs JOIN job ON job.id = saved_jobs.job_id JOIN user ON user.id = job.recruiter_id WHERE saved_jobs.user_id = ?";
-        return db.prepare(query).all(userID);
+            "SELECT job.*, user.company AS company, saved_jobs.saved_at AS saved_at FROM saved_jobs JOIN job ON job.id = saved_jobs.job_id JOIN user ON user.id = job.recruiter_id WHERE saved_jobs.user_id = ? ORDER BY saved_jobs.saved_at DESC LIMIT ? OFFSET ?";
+        return db.prepare(query).all(userID, limit, offset);
     }
 
     static isSavedJob(userID: number, jobID: number) {
