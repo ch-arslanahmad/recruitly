@@ -290,10 +290,18 @@
     border-bottom: none;
 }
 
+.applicants-header-row .col-job,
 .applicants-row .col-job {
     flex: 3;
+}
+
+.applicants-row .col-job {
     font-weight: 600;
     color: var(--text);
+}
+
+.applicants-header-row .col-job {
+    font-weight: 600;
 }
 
 .applicants-row .col-job span {
@@ -318,6 +326,48 @@
 .col-status {
     flex: 1;
     text-align: center;
+}
+
+.col-status select {
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: capitalize;
+    cursor: pointer;
+    border: none;
+    appearance: none;
+    -webkit-appearance: none;
+    background: var(--primary-light);
+    color: var(--primary);
+}
+
+.col-status select.applied {
+    background: var(--primary-light);
+    color: var(--primary);
+}
+
+.col-status select.interviewing {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.col-status select.offered {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.col-status select.rejected {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.applicants-table h3 {
+    font-size: 15px;
+    font-weight: 600;
+    padding: 14px 24px 8px;
+    color: var(--text);
+    margin: 0;
 }
 
 .col-date {
