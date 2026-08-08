@@ -144,8 +144,9 @@ function JobFormModal({
                 </button>
             </div>
             <form onSubmit={handlePostJob}>
-                <label>Job Title</label>
+                <label htmlFor="title">Job Title</label>
                 <input
+                    id="title"
                     name="title"
                     required
                     value={form.title}
@@ -154,8 +155,10 @@ function JobFormModal({
                     }
                 />
 
-                <label>About the Role</label>
+                <label htmlFor="about_role">About the Role</label>
                 <textarea
+                    id="about_role"
+                    name="about_role"
                     required
                     value={form.about_role}
                     onChange={(e) =>
@@ -163,8 +166,10 @@ function JobFormModal({
                     }
                 />
 
-                <label>Location</label>
+                <label htmlFor="location">Location</label>
                 <input
+                    id="location"
+                    name="location"
                     required
                     value={form.location}
                     onChange={(e) =>
@@ -172,8 +177,10 @@ function JobFormModal({
                     }
                 />
 
-                <label>Salary ($)</label>
+                <label htmlFor="salary">Salary ($)</label>
                 <input
+                    id="salary"
+                    name="salary"
                     type="number"
                     required
                     value={form.salary}
@@ -182,8 +189,10 @@ function JobFormModal({
                     }
                 />
 
-                <label>Type</label>
+                <label htmlFor="type">Type</label>
                 <select
+                    id="type"
+                    name="type"
                     value={form.type}
                     onChange={(e) => setForm({ ...form, type: e.target.value })}
                 >
@@ -193,16 +202,20 @@ function JobFormModal({
                     <option value="remote">Remote</option>
                 </select>
 
-                <label>Requirements (comma separated)</label>
+                <label htmlFor="requirements">Requirements (comma separated)</label>
                 <textarea
+                    id="requirements"
+                    name="requirements"
                     value={form.requirements}
                     onChange={(e) =>
                         setForm({ ...form, requirements: e.target.value })
                     }
                 />
 
-                <label>Responsibilities (comma separated)</label>
+                <label htmlFor="responsibilities">Responsibilities (comma separated)</label>
                 <textarea
+                    id="responsibilities"
+                    name="responsibilities"
                     value={form.responsibilities}
                     onChange={(e) =>
                         setForm({ ...form, responsibilities: e.target.value })

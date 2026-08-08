@@ -14,6 +14,18 @@
     margin-bottom: 30px;
 }
 
+/* Page heading with action button */
+.heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.heading h1 {
+    margin-bottom: 0;
+}
+
 /* Header bar */
 .header-bar {
     display: flex;

@@ -37,7 +37,9 @@ function ApplicantCard({
             </p>
             <p>
                 <i className="fa-solid fa-clipboard-check card-icon"></i>
+                <label htmlFor={`status-${applicant.application_id}`} className="sr-only">Status</label>
                 <select
+                    id={`status-${applicant.application_id}`}
                     name="status"
                     className={`status-badge ${status}`}
                     value={status}

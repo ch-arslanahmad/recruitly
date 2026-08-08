@@ -108,19 +108,23 @@ function AuthModel({
             <form onSubmit={handleSubmit}>
                 {mode === "register" && (
                     <>
-                        <input name="name" placeholder="Name" required />
+                        <label htmlFor="name" className="sr-only">Name</label>
+                        <input id="name" name="name" placeholder="Name" required />
                         {errors.name && (
                             <p className="field-error">{errors.name}</p>
                         )}
                     </>
                 )}
 
-                <input name="username" placeholder="Username" required />
+                <label htmlFor="username" className="sr-only">Username</label>
+                <input id="username" name="username" placeholder="Username" required />
                 {errors.username && (
                     <p className="field-error">{errors.username}</p>
                 )}
 
+                <label htmlFor="password" className="sr-only">Password</label>
                 <input
+                    id="password"
                     name="password"
                     type="password"
                     placeholder="Password"
@@ -132,7 +136,9 @@ function AuthModel({
 
                 {mode === "register" && (
                     <>
+                        <label htmlFor="confirmPassword" className="sr-only">Confirm Password</label>
                         <input
+                            id="confirmPassword"
                             name="confirmPassword"
                             type="password"
                             placeholder="Confirm Password"
@@ -148,7 +154,8 @@ function AuthModel({
 
                 {mode === "register" && activeRole === "recruiter" && (
                     <>
-                        <input name="company" placeholder="Company" required />
+                        <label htmlFor="company" className="sr-only">Company</label>
+                        <input id="company" name="company" placeholder="Company" required />
                         {errors.company && (
                             <p className="field-error">{errors.company}</p>
                         )}
