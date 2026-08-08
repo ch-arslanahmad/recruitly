@@ -320,3 +320,23 @@
 .quick-card li svg {
     flex-shrink: 0;
 }
+.quick-card li a,
+.quick-card li .quick-link {
+    text-decoration: none;
+    color: inherit;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+}
+.quick-card li.disabled {
+    color: #9ca3af;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+.quick-card li.disabled svg {
+    stroke: #9ca3af;
+}
+.quick-card li.disabled a {
+    pointer-events: none;
+}
