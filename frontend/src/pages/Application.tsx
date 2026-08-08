@@ -16,14 +16,14 @@ function Application() {
         // Fetch job details for each application
 
         Promise.all(
-          data.map((app: ApplicationType) => {
+          data.map((app: ApplicationType) =>
             api.jobs
               .get(app.job_id)
               .then((res: { job: Job }) =>
                 setJobs((prev) => ({ ...prev, [app.job_id]: res.job })),
               )
-              .catch(() => {});
-          }),
+              .catch(() => {}),
+          ),
         );
       })
       .catch((err) => setError(err.message));

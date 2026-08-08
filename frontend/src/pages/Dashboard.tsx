@@ -60,6 +60,10 @@ function Dashboard({ user }: { user: User }) {
         setJobs((prev) =>
           prev.map((j) => (j.id === jobId ? { ...j, ...updated } : j)),
         );
+        return api.recruiter.job.stats();
+      })
+      .then((res) => {
+        setStats(res);
       })
       .catch((err) => {
         console.error("Failed to update job status", err);
