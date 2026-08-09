@@ -81,12 +81,12 @@ class Job {
       .get(id) as Job | undefined;
   }
 
-  static findByRecruiter(recruiter_id: number, limit = 5, offset = 0): Job[] {
+  static findByRecruiter(recruiter_id: number): Job[] {
     return db
       .prepare(
-        "SELECT job.*, user.company, (SELECT COUNT(*) FROM application WHERE job_id = job.id) AS applicant_count FROM job JOIN user ON job.recruiter_id = user.id WHERE recruiter_id = ? ORDER BY job.created_at DESC LIMIT ? OFFSET ?",
+        "SELECT job.*, user.company, (SELECT COUNT(*) FROM application WHERE job_id = job.id) AS applicant_count FROM job JOIN user ON job.recruiter_id = user.id WHERE recruiter_id = ? ORDER BY job.created_at DESC",
       )
-      .all(recruiter_id, limit, offset) as Job[];
+      .all(recruiter_id) as Job[];
   }
 
   // ALL STATs NEEDED by a recruiter for himself
@@ -113,8 +113,6 @@ class Job {
       minSalary?: number;
       recruiter_id?: number;
     },
-    limit = 5,
-    offset = 0,
   ): Job[] {
     let query =
       "SELECT job.*, user.company FROM job JOIN user ON job.recruiter_id = user.id WHERE 1=1";
@@ -137,9 +135,7 @@ class Job {
       params.push(filters.recruiter_id);
     }
 
-    // stable order so pages don't overlap, then paginate
-    query += " ORDER BY created_at DESC LIMIT ? OFFSET ?";
-    params.push(limit, offset);
+    query += " ORDER BY created_at DESC";
 
     return db.prepare(query).all(...params) as Job[];
   }

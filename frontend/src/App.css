@@ -153,12 +153,12 @@
     margin-top: -8px;
 }
 
-.auth-container > div:last-child {
+.auth-container>div:last-child {
     margin-top: 20px;
     text-align: center;
 }
 
-.auth-container > div:last-child button {
+.auth-container>div:last-child button {
     background: none;
     border: none;
     color: var(--primary);
@@ -166,7 +166,7 @@
     padding: 8px;
 }
 
-.auth-container > div:last-child button:hover {
+.auth-container>div:last-child button:hover {
     text-decoration: underline;
 }
 
@@ -182,7 +182,7 @@
     margin-bottom: 8px;
 }
 
-.home-container > p {
+.home-container>p {
     margin-bottom: 32px;
 }
 
@@ -221,13 +221,17 @@
 /* Status badge (cards) */
 .status-badge {
     display: inline-block;
-    padding: 2px 2px;
+    padding: 2px 10px;
     border-radius: 999px;
     font-size: 12px;
     font-weight: 600;
     text-transform: capitalize;
     white-space: nowrap;
     border: none;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    cursor: pointer;
 }
 
 .status-badge.applied {
@@ -256,9 +260,49 @@
     gap: 16px;
 }
 
-.card-list > * {
+.card-list>* {
     flex: 1 1 calc(50% - 8px);
     min-width: 280px;
+}
+
+/* Pagination */
+.pagination {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 24px;
+    padding: 16px 0;
+}
+
+.pagination button {
+    padding: 8px 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.pagination button:hover:not(:disabled) {
+    border-color: var(--primary);
+    color: var(--primary);
+    background: var(--primary-light);
+}
+
+.pagination button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.pagination span {
+    font-size: 13px;
+    color: var(--text-secondary);
+    padding: 0 8px;
 }
 
 /* Applicants table view */

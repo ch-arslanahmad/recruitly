@@ -17,12 +17,20 @@ function JobBoard({
   const [jobs, setJobs] = useState<Job[]>([]);
   const [error, setError] = useState("");
 
+  const [page, setPage] = useState(1);
+  const perPage = 10;
+
   useEffect(() => {
     const fetchJobs = mode === "saved" ? api.saved.getAll : api.jobs.getAll;
     fetchJobs()
       .then((data: Job[]) => setJobs(data))
       .catch((err) => setError(err.message));
   }, [mode]);
+
+  const totalPages = Math.ceil(jobs.length / perPage);
+
+  const offset = (page - 1) * perPage; // calculate offset
+  const visible = jobs.slice(offset, offset + perPage); // from offset to offset + perPage
 
   if (error) return <p style={{ color: "red" }}>{error}</p>;
 
@@ -42,9 +50,34 @@ function JobBoard({
               : "No jobs found right now. Check back soon."}
           </p>
         ) : (
-          jobs.map((job) => <JobCard key={job.id} job={job} />)
+          visible.map((job) => <JobCard key={job.id} job={job} />)
         )}
       </div>
+      {totalPages > 1 && (
+        <div className="pagination">
+          <button onClick={() => setPage(1)} disabled={page === 1}>
+            First Page
+          </button>
+          <button onClick={() => setPage(page - 1)} disabled={page === 1}>
+            Previous
+          </button>
+          <span>
+            Page {page} of {totalPages}
+          </span>
+          <button
+            onClick={() => setPage(page + 1)}
+            disabled={page === totalPages}
+          >
+            Next
+          </button>
+          <button
+            onClick={() => setPage(totalPages)}
+            disabled={page === totalPages}
+          >
+            Last Page
+          </button>
+        </div>
+      )}
     </div>
   );
 }
