@@ -54,6 +54,7 @@ function JobBoard({
         <input
           type="text"
           placeholder="Search jobs..."
+          value={search}
           onChange={(e) => {
             setSearch(e.target.value);
             setPage(1); // reset the page to 1
@@ -67,6 +68,8 @@ function JobBoard({
               ? "You haven't saved any jobs yet."
               : "No jobs found right now. Check back soon."}
           </p>
+        ) : visible.length === 0 ? (
+          <p>No jobs match "{search}"</p>
         ) : (
           <>
             {visible.map((job) => (

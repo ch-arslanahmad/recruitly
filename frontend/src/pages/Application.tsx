@@ -7,6 +7,7 @@ function Application() {
   const [applications, setApplications] = useState<ApplicationType[]>([]);
   const [jobs, setJobs] = useState<Record<number, Job>>({});
   const [error, setError] = useState("");
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     api.applications
@@ -29,22 +30,34 @@ function Application() {
       .catch((err) => setError(err.message));
   }, []);
 
-  if (error) return <p style={{ color: "red" }}>{error}</p>;
+  const filtered = applications.filter((app) =>
+    jobs[app.job_id]?.title.toLowerCase().includes(search.toLowerCase()) ||
+    jobs[app.job_id]?.company.toLowerCase().includes(search.toLowerCase()),
+  );
 
-  if (applications.length === 0) {
-    return (
-      <div className="home-container">
-        <h1>My Applications</h1>
-        <p>You haven't applied to any jobs yet.</p>
-      </div>
-    );
-  }
+  if (error) return <p style={{ color: "red" }}>{error}</p>;
 
   return (
     <div className="home-container">
       <h1>My Applications</h1>
+      <div className="search-bar">
+        <input
+          type="text"
+          placeholder="Search by job title or company..."
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value);
+          }}
+        />
+      </div>
+      {applications.length === 0 ? (
+        <p>You haven't applied to any jobs yet.</p>
+      ) : filtered.length === 0 ? (
+        <p>No applications match "{search}"</p>
+      ) : null}
+
       <div className="card-list">
-        {applications.map((app) => {
+        {filtered.map((app) => {
           const job = jobs[app.job_id];
           return (
             <div key={app.id} className="job-card application-card">
