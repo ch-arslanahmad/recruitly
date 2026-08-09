@@ -17,8 +17,16 @@ function JobBoard({
   const [jobs, setJobs] = useState<Job[]>([]);
   const [error, setError] = useState("");
 
+  // searching
+  const [search, setSearch] = useState("");
+
+  // for pagination
   const [page, setPage] = useState(1);
   const perPage = 10;
+
+  const filtered = jobs.filter((job) =>
+    job.title.toLowerCase().includes(search.toLowerCase()),
+  );
 
   useEffect(() => {
     const fetchJobs = mode === "saved" ? api.saved.getAll : api.jobs.getAll;
@@ -27,10 +35,10 @@ function JobBoard({
       .catch((err) => setError(err.message));
   }, [mode]);
 
-  const totalPages = Math.ceil(jobs.length / perPage);
+  const totalPages = Math.ceil(filtered.length / perPage);
 
   const offset = (page - 1) * perPage; // calculate offset
-  const visible = jobs.slice(offset, offset + perPage); // from offset to offset + perPage
+  const visible = filtered.slice(offset, offset + perPage); // from offset to offset + perPage
 
   if (error) return <p style={{ color: "red" }}>{error}</p>;
 
@@ -42,6 +50,16 @@ function JobBoard({
           <p> {page_description}</p>
         </>
       )}
+      <div className="search-bar">
+        <input
+          type="text"
+          placeholder="Search jobs..."
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setPage(1); // reset the page to 1
+          }}
+        />
+      </div>
       <div className="card-list">
         {jobs.length === 0 ? (
           <p>
@@ -50,7 +68,11 @@ function JobBoard({
               : "No jobs found right now. Check back soon."}
           </p>
         ) : (
-          visible.map((job) => <JobCard key={job.id} job={job} />)
+          <>
+            {visible.map((job) => (
+              <JobCard key={job.id} job={job} />
+            ))}
+          </>
         )}
       </div>
       {totalPages > 1 && (
