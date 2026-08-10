@@ -31,7 +31,7 @@ function myApplications(req: AuthRequest, res: Response) {
       return res.status(400).json({ message: "Unauthorized, ID required" });
     }
 
-    const applications = Application.findByCandidate(user_id);
+    const applications = Application.findByCandidateWithJobs(user_id);
 
     res.json(applications);
   } catch (error) {

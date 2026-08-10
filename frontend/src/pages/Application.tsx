@@ -1,11 +1,14 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Application as ApplicationType, Job } from "../types";
+import {
+  Application as ApplicationType,
+  Job,
+  ApplicationWithJob,
+} from "../types";
 import { api } from "../api";
 
 function Application() {
-  const [applications, setApplications] = useState<ApplicationType[]>([]);
-  const [jobs, setJobs] = useState<Record<number, Job>>({});
+  const [applications, setApplications] = useState<ApplicationWithJob[]>([]);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
 
@@ -20,32 +23,22 @@ function Application() {
   useEffect(() => {
     api.applications
       .my()
-      .then((data: ApplicationType[]) => {
+      .then((data: ApplicationWithJob[]) => {
+        console.log(data);
         setApplications(data);
-        // Fetch job details for each application
 
-        Promise.all(
-          data.map((app: ApplicationType) =>
-            api.jobs
-              .get(app.job_id)
-              .then((res: { job: Job }) =>
-                setJobs((prev) => ({ ...prev, [app.job_id]: res.job })),
-              )
-              .catch(() => {}),
-          ),
-        ).then(() => setJobLoaded(true));
+        console.log(applications);
+        setJobLoaded(true);
       })
       .catch((err) => setError(err.message));
   }, []);
 
+  applications;
+
   const searched = applications.filter(
     (app) =>
-      (jobs[app.job_id]?.title ?? "")
-        .toLowerCase()
-        .includes(search.toLowerCase()) ||
-      (jobs[app.job_id]?.company ?? "")
-        .toLowerCase()
-        .includes(search.toLowerCase()),
+      (app.job_title ?? "").toLowerCase().includes(search.toLowerCase()) ||
+      (app.company ?? "").toLowerCase().includes(search.toLowerCase()),
   );
 
   const filtered = searched.filter(
@@ -59,17 +52,14 @@ function Application() {
       const dataA = a.created_at
         ? new Date(a.created_at.replace(" ", "T")).getTime()
         : 0;
-      console.log(`dataA: ${dataA}`);
       const dataB = b.created_at
         ? new Date(b.created_at.replace(" ", "T")).getTime()
         : 0;
-      console.log(`dataB: ${dataB}`);
-      console.log(`dataB - dataA: ${dataB - dataA}`);
       return dataA - dataB;
     });
   } else if (sortBy === "title") {
     displayed = [...filtered].sort((a, b) =>
-      (jobs[a.job_id]?.title ?? "").localeCompare(jobs[b.job_id]?.title ?? ""),
+      (a.job_title ?? "").localeCompare(b.job_title ?? ""),
     );
   }
 
@@ -160,19 +150,18 @@ function Application() {
 
       <div className="card-list">
         {displayed.map((app) => {
-          const job = jobs[app.job_id];
           return (
             <div key={app.id} className="job-card application-card">
-              <h2 className={job ? "" : "placeholder"}>
-                {job ? job.title : `Job #${app.job_id}`}
+              <h2 className={app.job_title ? "" : "placeholder"}>
+                {app.job_title ? app.job_title : `Job #${app.job_id}`}
               </h2>
-              {job && (
+              {app.company && (
                 <p className="meta">
                   <i className="fa-solid fa-building card-icon"></i>
-                  {job.company}
+                  {app.company}
                   <span>&middot;</span>
                   <i className="fa-solid fa-location-dot card-icon"></i>
-                  {job.location}
+                  {app.location}
                 </p>
               )}
               <p>
