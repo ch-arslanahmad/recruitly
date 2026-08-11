@@ -24,16 +24,11 @@ function Application() {
     api.applications
       .my()
       .then((data: ApplicationWithJob[]) => {
-        console.log(data);
         setApplications(data);
-
-        console.log(applications);
         setJobLoaded(true);
       })
       .catch((err) => setError(err.message));
   }, []);
-
-  applications;
 
   const searched = applications.filter(
     (app) =>
@@ -41,8 +36,8 @@ function Application() {
       (app.company ?? "").toLowerCase().includes(search.toLowerCase()),
   );
 
-  const filtered = searched.filter(
-    (app) => statusFilter === "" || app.status === statusFilter,
+  const filtered = searched.filter((app) =>
+    statusFilter ? app.status === statusFilter : true,
   );
 
   // .sort() mutates the array in place, so copy it with spread first
@@ -64,6 +59,13 @@ function Application() {
   }
 
   if (error) return <p style={{ color: "red" }}>{error}</p>;
+
+  let message = null;
+  if (applications.length === 0) {
+    message = <p>You haven't applied to any jobs yet.</p>;
+  } else if (displayed.length === 0 && (search || statusFilter)) {
+    message = <p>No applications match "{search || statusFilter}"</p>;
+  }
 
   return (
     <div className="home-container">
@@ -112,7 +114,7 @@ function Application() {
             )}
           </div>
 
-          <div className="filter-group">
+          <div className="filter-group" style={{ alignItems: "end" }}>
             <button
               className="filter-toggle"
               onClick={() => setShowSort(!showSort)}
@@ -142,11 +144,8 @@ function Application() {
           </div>
         </div>
       </div>
-      {applications.length === 0 ? (
-        <p>You haven't applied to any jobs yet.</p>
-      ) : displayed.length === 0 && search ? (
-        <p>No applications match "{search}"</p>
-      ) : null}
+
+      {message}
 
       <div className="card-list">
         {displayed.map((app) => {

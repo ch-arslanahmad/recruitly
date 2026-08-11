@@ -29,9 +29,14 @@ export const api = {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
-      }).then((r) => {
-        if (!r.ok) throw { status: r.status, message: "Registration failed" };
-        return r.json();
+      }).then(async (r) => {
+        if (!r.ok) {
+          const body = await r.json().catch(() => ({}));
+          throw {
+            status: r.status,
+            message: body.message || "Registration failed",
+          };
+        }
       }),
   },
 
