@@ -1,7 +1,12 @@
 // This holds all the API calls to the backend.
 // For separation of concerns, we keep them in one separate file.
 
-import { Job, JobApplicant, ApplicationWithJob } from "./types";
+import {
+  Job,
+  JobApplicant,
+  ApplicationWithJob,
+  ApplicantWithJob,
+} from "./types";
 
 const token = () => localStorage.getItem("recruitly_token");
 const authHeaders = () => ({ Authorization: `Bearer ${token()}` });
@@ -37,6 +42,7 @@ export const api = {
             message: body.message || "Registration failed",
           };
         }
+        return r.json();
       }),
   },
 
@@ -99,21 +105,9 @@ export const api = {
     },
   },
 
-  saved: {
-    getAll: () =>
-      fetch("/api/saved-jobs", { headers: authHeaders() }).then((r) => {
-        if (!r.ok)
-          throw {
-            status: r.status,
-            message: "Failed to fetch saved jobs",
-          };
-        return r.json();
-      }),
-  },
-
   recruiter: {
     job: {
-      create: (data: Record<string, unknown>) => {
+      create: async (data: Record<string, unknown>) => {
         console.log("Sending:", data);
         return fetch("/api/jobs", {
           method: "POST",
@@ -188,6 +182,18 @@ export const api = {
             };
           return r.json();
         }),
+    },
+    applicants: async (): Promise<ApplicantWithJob[]> => {
+      return fetch(`/api/applications/applicants`, {
+        headers: authHeaders(),
+      }).then((r) => {
+        if (!r.ok)
+          throw {
+            status: r.status,
+            message: "Failed to fetch applicants",
+          };
+        return r.json();
+      });
     },
   },
   applications: {

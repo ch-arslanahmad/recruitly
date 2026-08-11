@@ -54,7 +54,8 @@ function JobBoard({
   });
 
   useEffect(() => {
-    const fetchJobs = mode === "saved" ? api.saved.getAll : api.jobs.getAll;
+    const fetchJobs =
+      mode === "saved" ? api.jobs.saved.getAll : api.jobs.getAll;
     fetchJobs()
       .then((data: Job[]) => setJobs(data))
       .catch((err) => setError(err.message));
@@ -110,19 +111,21 @@ function JobBoard({
 
             {showFilters && (
               <div className="filter-options">
-                {["full-time", "part-time", "contract", "remote"].map((type) => {
-                  return (
-                    <button
-                      key={type}
-                      className={`chip ${typeFilter === type ? "active" : ""}`}
-                      onClick={() =>
-                        setTypeFilter(typeFilter === type ? "" : type)
-                      }
-                    >
-                      {type}
-                    </button>
-                  );
-                })}
+                {["full-time", "part-time", "contract", "remote"].map(
+                  (type) => {
+                    return (
+                      <button
+                        key={type}
+                        className={`chip ${typeFilter === type ? "active" : ""}`}
+                        onClick={() =>
+                          setTypeFilter(typeFilter === type ? "" : type)
+                        }
+                      >
+                        {type}
+                      </button>
+                    );
+                  },
+                )}
               </div>
             )}
           </div>

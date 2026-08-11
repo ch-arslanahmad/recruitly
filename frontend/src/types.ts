@@ -48,6 +48,15 @@ export interface ApplicationWithJob extends Application {
   company: string;
 }
 
+export interface ApplicantWithJob extends Application {
+  job_title: string;
+  location: string;
+  salary: number;
+  job_type: string;
+  job_status: string;
+  candidate_name: string;
+}
+
 export interface AuthResponse {
   token: string;
   user: User;

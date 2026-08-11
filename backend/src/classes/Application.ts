@@ -54,6 +54,21 @@ class Application {
       .all(candidate_id);
   }
 
+  static findByRecruiter(recruiter_id: number) {
+    const query: string = `
+      SELECT application.id, application.job_id, application.candidate_id, application.status, application.created_at,
+             job.title AS job_title, job.location, job.salary, job.type AS job_type, job.status AS job_status,
+             user.name AS candidate_name
+      FROM application
+      JOIN job ON application.job_id = job.id
+      JOIN user ON application.candidate_id = user.id
+      WHERE job.recruiter_id = ?
+      ORDER BY application.created_at DESC
+    `;
+
+    return db.prepare(query).all(recruiter_id);
+  }
+
   static findJobApplicants(job_id: number) {
     const query: string = `SELECT app.id AS application_id, applicant.id AS applicant_id,
       applicant.name AS candidate_name, app.status, app.created_at

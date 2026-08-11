@@ -39,6 +39,22 @@ function myApplications(req: AuthRequest, res: Response) {
   }
 }
 
+function myApplicants(req: AuthRequest, res: Response) {
+  try {
+    let user_id: number | undefined = req.user?.id;
+
+    if (!user_id) {
+      return res.status(400).json({ message: "Unauthorized, ID required" });
+    }
+
+    const applications = Application.findByRecruiter(user_id);
+
+    res.json(applications);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to list applications" });
+  }
+}
+
 // @route   GET /applications/job/:id, get all applications for a specific job
 function jobApplications(req: AuthRequest, res: Response) {
   try {
@@ -82,6 +98,13 @@ router.get(
   authMiddleware,
   requireRole("recruiter"),
   jobApplications,
+);
+
+router.get(
+  "/applicants",
+  authMiddleware,
+  requireRole("recruiter"),
+  myApplicants,
 );
 router.put("/:id", authMiddleware, requireRole("recruiter"), updateStatus);
 
