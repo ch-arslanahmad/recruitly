@@ -3,7 +3,7 @@ import fs from "fs";
 
 export function generatePdf(filepath: string, data: any) {
   const doc = new PDFDocument();
-  const output = fs.createWriteStream(filename);
+  const output = fs.createWriteStream(filepath);
   doc.pipe(output);
   doc.text(data);
   doc.end();

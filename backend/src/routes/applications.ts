@@ -13,6 +13,15 @@ function apply(req: AuthRequest, res: Response) {
       return res.status(400).json({ message: "Unauthorized, ID required" });
     }
 
+    // Check if the user has already applied to this job
+    const existing = Application.find({
+      job_id: req.body.job_id,
+      candidate_id: user_id,
+    });
+    if (existing) {
+      return res.status(409).json({ message: "Already applied to this job" });
+    }
+
     Application.create({
       job_id: req.body.job_id,
       candidate_id: user_id,
@@ -77,7 +86,9 @@ function updateStatus(req: AuthRequest, res: Response) {
       return res.status(400).json({ message: "Invalid application status" });
     }
 
-    const existing = Application.findById(id);
+    const recruiter_id = req.user?.id; // Assuming the recruiter_id is obtained from the authenticated user
+
+    const existing = Application.find({ id, recruiter_id });
     if (!existing) {
       return res.status(404).json({ message: "Application not found" });
     }

@@ -41,6 +41,11 @@
     background: var(--primary-light);
 }
 
+.nav-links a.active {
+    color: var(--primary);
+    background: var(--primary-light);
+}
+
 .nav-links .logout a {
     background: var(--primary);
     font-size: 14px;
@@ -829,7 +834,21 @@
         padding: 24px;
     }
 
+    .home-container {
+        padding: 20px 12px;
+    }
+
+    .card-list {
+        gap: 10px;
+    }
+
+    .card-list > * {
+        flex: 1 1 100%;
+        min-width: 0;
+    }
+
     .job-card {
-        margin: 16px;
+        margin: 0;
+        padding: 14px;
     }
 }

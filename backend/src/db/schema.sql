@@ -30,7 +30,8 @@ CREATE TABLE IF NOT EXISTS application (
     job_id INTEGER NOT NULL REFERENCES job(id) ON DELETE CASCADE,
     candidate_id INTEGER NOT NULL REFERENCES user(id) ON DELETE CASCADE,
     status TEXT NOT NULL CHECK(status IN ('applied', 'interviewing', 'offered', 'rejected')),
-    created_at TEXT DEFAULT (datetime('now', 'localtime'))
+    created_at TEXT DEFAULT (datetime('now', 'localtime')),
+    UNIQUE(job_id, candidate_id) -- so a candidate can't apply for the same job twice.
 );
 
 

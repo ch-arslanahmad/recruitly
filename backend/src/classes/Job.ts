@@ -106,14 +106,12 @@ class Job {
   // { type: 'full-time', location: 'remote', minSalary: 50000 }
 
   // return all jobs (with filters)
-  static findAll(
-    filters?: {
-      type?: string;
-      location?: string;
-      minSalary?: number;
-      recruiter_id?: number;
-    },
-  ): Job[] {
+  static findAll(filters?: {
+    type?: string;
+    location?: string;
+    minSalary?: number;
+    recruiter_id?: number;
+  }): Job[] {
     let query =
       "SELECT job.*, user.company FROM job JOIN user ON job.recruiter_id = user.id WHERE 1=1";
     const params = [];
@@ -142,6 +140,7 @@ class Job {
 
   static update(
     id: number,
+    recruiter_id: number,
     fields: {
       title?: string;
       about_role?: string;
@@ -191,14 +190,17 @@ class Job {
 
     // remove last comma and space
     query = query.slice(0, -2);
-    query += " WHERE id = ?";
-    params.push(id);
+    query += " WHERE id = ? AND recruiter_id = ?";
+    params.push(id, recruiter_id);
 
     db.prepare(query).run(...params);
   }
 
-  static delete(id: number) {
-    db.prepare("DELETE FROM job WHERE id = ?").run(id);
+  static delete(id: number, recruiter_id: number) {
+    db.prepare("DELETE FROM job WHERE id = ? recruiter_id: number ").run(
+      id,
+      recruiter_id,
+    );
   }
 }
 

@@ -34,24 +34,33 @@ class Application {
       .run(job_id, candidate_id, status);
   }
 
-  static findById(id: number) {
-    return db.prepare("SELECT * FROM application WHERE id = ?").get(id);
-  }
+  static find(filters: {
+    id?: number;
+    job_id?: number;
+    candidate_id?: number;
+    recruiter_id?: number;
+  }) {
+    let query = "SELECT * FROM application WHERE 1=1";
+    const params: any[] = [];
 
-  static findByJob(job_id: number) {
-    return db
-      .prepare(
-        "SELECT * FROM application WHERE job_id = ? ORDER BY created_at DESC",
-      )
-      .all(job_id);
-  }
+    if (filters.id !== undefined) {
+      query += " AND id = ?";
+      params.push(filters.id);
+    }
+    if (filters.job_id !== undefined) {
+      query += " AND job_id = ?";
+      params.push(filters.job_id);
+    }
+    if (filters.candidate_id !== undefined) {
+      query += " AND candidate_id = ?";
+      params.push(filters.candidate_id);
+    }
+    if (filters.recruiter_id !== undefined) {
+      query += " AND job_id IN (SELECT id FROM job WHERE recruiter_id = ?)";
+      params.push(filters.recruiter_id);
+    }
 
-  static findByCandidate(candidate_id: number) {
-    return db
-      .prepare(
-        "SELECT * FROM application WHERE candidate_id = ? ORDER BY created_at DESC",
-      )
-      .all(candidate_id);
+    return db.prepare(query).get(...params);
   }
 
   static findByRecruiter(recruiter_id: number) {
