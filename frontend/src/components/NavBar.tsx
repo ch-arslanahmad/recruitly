@@ -63,7 +63,8 @@ function NavBar({ user, onLogout }: { user?: User; onLogout?: () => void }) {
           <li className="logout">
             <a
               href="#"
-              onClick={() => {
+              onClick={(e) => {
+                e.preventDefault();
                 onLogout?.();
               }}
             >

@@ -23,6 +23,7 @@ function Dashboard({ user }: { user: User }) {
     total_interviews: 0,
   });
   const [job, setJob] = useState<Job | null>(null);
+  const [search, setSearch] = useState("");
 
   const dialogRef = useRef<HTMLDialogElement>(null);
 
@@ -69,6 +70,15 @@ function Dashboard({ user }: { user: User }) {
         console.error("Failed to update job status", err);
       });
   }
+
+  const searched = jobs.filter((job) => {
+    return (
+      (job.title ?? "").toLowerCase().includes(search.toLowerCase()) ||
+      (job.location ?? "").toLowerCase().includes(search.toLowerCase())
+    );
+  });
+
+  const visible = searched.slice(0, 5); // limit for dashboard
 
   return (
     <>
@@ -196,9 +206,18 @@ function Dashboard({ user }: { user: User }) {
                 Post New Job
               </button>
             </div>
-
+            <div className="search-bar">
+              <input
+                type="text"
+                placeholder="Search by job title or location..."
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                }}
+              />
+            </div>
             <JobTable
-              jobs={jobs}
+              jobs={visible}
               actionsLabel="Edit"
               emptyMessage="No jobs posted yet."
               statusToggle={(jobId, newStatus) =>

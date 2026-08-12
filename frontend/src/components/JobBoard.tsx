@@ -117,9 +117,10 @@ function JobBoard({
                       <button
                         key={type}
                         className={`chip ${typeFilter === type ? "active" : ""}`}
-                        onClick={() =>
-                          setTypeFilter(typeFilter === type ? "" : type)
-                        }
+                        onClick={() => {
+                          setTypeFilter(typeFilter === type ? "" : type);
+                          setPage(1);
+                        }}
                       >
                         {type}
                       </button>
@@ -145,13 +146,19 @@ function JobBoard({
               <div className="filter-options">
                 <button
                   className={`chip ${sortBy === "date" ? "active" : ""}`}
-                  onClick={() => setSortBy(sortBy === "date" ? "" : "date")}
+                  onClick={() => {
+                    setSortBy(sortBy === "date" ? "" : "date");
+                    setPage(1);
+                  }}
                 >
                   Date ↑
                 </button>
                 <button
                   className={`chip ${sortBy === "title" ? "active" : ""}`}
-                  onClick={() => setSortBy(sortBy === "title" ? "" : "title")}
+                  onClick={() => {
+                    setSortBy(sortBy === "title" ? "" : "title");
+                    setPage(1);
+                  }}
                 >
                   Title ↓
                 </button>

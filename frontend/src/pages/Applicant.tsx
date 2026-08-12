@@ -140,10 +140,16 @@ function Applicant() {
   const [error, setError] = useState("");
   const [view, setView] = useState<"cards" | "table">("cards");
 
-  // const [search, setSearch] = useState("");
+  const [search, setSearch] = useState("");
 
   // paginations
   const [page, setPage] = useState(1);
+
+  // sorting & filtering
+  const [sortBy, setSortBy] = useState<"" | "date" | "title">("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [showFilters, setShowFilters] = useState(false);
+  const [showSort, setShowSort] = useState(false);
 
   const perPage = view === "cards" ? 5 : 10; // number of items per page based on view
 
@@ -158,14 +164,38 @@ function Applicant() {
       );
   }, []);
 
-  // const searched = jobs.filter((job) =>
-  //   job.title.toLowerCase().includes(search.toLowerCase()) || ,
-  // );
+  const sorted = [...applicants].sort((a, b) => {
+    if (sortBy === "date") {
+      const dataA = a.created_at
+        ? new Date(a.created_at.replace(" ", "T")).getTime()
+        : 0;
+      const dataB = b.created_at
+        ? new Date(b.created_at.replace(" ", "T")).getTime()
+        : 0;
+      return dataA - dataB;
+    } else if (sortBy === "title") {
+      return a.job_title.localeCompare(b.job_title);
+    }
+    return 0;
+  });
+
+  const filtered = sorted.filter((applicant) => {
+    if (statusFilter) {
+      return applicant.status === statusFilter;
+    }
+    return true;
+  });
+
+  const searched = filtered.filter(
+    (applicant) =>
+      applicant.job_title.toLowerCase().includes(search.toLowerCase()) ||
+      applicant.candidate_name.toLowerCase().includes(search.toLowerCase()),
+  );
 
   // paginations
   const offset = (page - 1) * perPage;
   const totalPages = Math.ceil(applicants.length / perPage);
-  const visible = applicants.slice(offset, offset + perPage);
+  const visible = searched.slice(offset, offset + perPage);
 
   if (error) return <p style={{ color: "red" }}>{error}</p>;
 
@@ -181,6 +211,85 @@ function Applicant() {
   return (
     <>
       <div className="home-container">
+        <div className="search-bar">
+          <input
+            type="text"
+            placeholder="Search by job title or location..."
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
+          />
+
+          <div className="filter-sort-row">
+            <div className="filter-group">
+              <button
+                className="filter-toggle"
+                onClick={() => setShowFilters(!showFilters)}
+              >
+                <i className="fa-solid fa-filter"></i> Filter
+                <i
+                  className={`fa-solid fa-chevron-${showFilters ? "up" : "down"}`}
+                ></i>
+              </button>
+
+              {showFilters && (
+                <div className="filter-options">
+                  {["applied", "interviewing", "offered", "rejected"].map(
+                    (status) => (
+                      <button
+                        key={status}
+                        className={`chip ${statusFilter === status ? "active" : ""}`}
+                        onClick={() => {
+                          setStatusFilter(statusFilter === status ? "" : status);
+                          setPage(1);
+                        }}
+                      >
+                        {status}
+                      </button>
+                    ),
+                  )}
+                </div>
+              )}
+            </div>
+
+            <div className="filter-group" style={{ alignItems: "end" }}>
+              <button
+                className="filter-toggle"
+                onClick={() => setShowSort(!showSort)}
+              >
+                <i className="fa-solid fa-arrow-down-wide-short"></i> Sort
+                <i
+                  className={`fa-solid fa-chevron-${showSort ? "up" : "down"}`}
+                ></i>
+              </button>
+
+              {showSort && (
+                <div className="filter-options">
+                  <button
+                    className={`chip ${sortBy === "date" ? "active" : ""}`}
+                    onClick={() => {
+                      setSortBy(sortBy === "date" ? "" : "date");
+                      setPage(1);
+                    }}
+                  >
+                    Date ↑
+                  </button>
+                  <button
+                    className={`chip ${sortBy === "title" ? "active" : ""}`}
+                    onClick={() => {
+                      setSortBy(sortBy === "title" ? "" : "title");
+                      setPage(1);
+                    }}
+                  >
+                    Title ↓
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
         <div className="applicants-header">
           <h1>Applicants</h1>
 
@@ -189,7 +298,10 @@ function Applicant() {
             title={
               view === "cards" ? "Switch to table view" : "Switch to card view"
             }
-            onClick={() => setView(view === "cards" ? "table" : "cards")}
+            onClick={() => {
+              setView(view === "cards" ? "table" : "cards");
+              setPage(1);
+            }}
           >
             <i
               className={
