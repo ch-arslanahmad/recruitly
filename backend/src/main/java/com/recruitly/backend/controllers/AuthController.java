@@ -16,6 +16,8 @@ public class AuthController {
         AuthController.class
     );
 
+    
+
     private final UserRepository userRepo;
     BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(); // for password hashing
 

@@ -10,4 +10,9 @@ public class HomeController {
     public String home() {
         return "Welcome to Recruitly API!";
     }
+
+    @GetMapping("/health")
+    public String health() {
+        return "API is healthy!";
+    }
 }
