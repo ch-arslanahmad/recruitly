@@ -25,7 +25,7 @@ public class SecurityConfig {
                     .requestMatchers("/api/auth/**", "/*")
                     .permitAll()
                     .anyRequest()
-                    .permitAll()
+                    .authenticated()
             )
             // applying the JWT filter before the UsernamePasswordAuthenticationFilter
             .addFilterBefore(

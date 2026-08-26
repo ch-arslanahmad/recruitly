@@ -1,5 +1,7 @@
 package com.recruitly.backend.config;
 
+import com.recruitly.backend.model.User.Role;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import java.nio.charset.StandardCharsets;
@@ -40,6 +42,27 @@ public class JWTUtil {
             log.debug("Error generating token: " + e.getMessage());
             throw new RuntimeException("Error generating token", e);
         }
+    }
+
+    private Claims getClaims(String token) {
+        try {
+            return Jwts.parser()
+                .verifyWith(getSigningKey()) // Your signing key
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+        } catch (Exception e) {
+            log.warn("Error parsing token: " + e.getMessage());
+            throw new RuntimeException("Invalid token", e);
+        }
+    }
+
+    public Role getRole(String token) {
+        return Role.valueOf(getClaims(token).get("role", String.class));
+    }
+
+    public long getUserID(String token) {
+        return Long.parseLong(getClaims(token).getSubject());
     }
 
     public boolean validateToken(String token) {
