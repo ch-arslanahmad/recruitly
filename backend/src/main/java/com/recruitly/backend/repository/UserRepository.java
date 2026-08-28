@@ -1,12 +1,16 @@
 package com.recruitly.backend.repository;
 
+import com.recruitly.backend.model.Job;
 import com.recruitly.backend.model.User;
+import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -22,21 +26,39 @@ public class UserRepository {
         this.jdbc = jdbc;
     }
 
-    public boolean create(User user) {
+    public Long create(User user) {
         String sql =
             "INSERT INTO user (name, username, password, role, company, created_at) VALUES (?, ?, ?, ?, ?, ?)";
 
-        int rows = jdbc.update(
-            sql,
-            user.getName(),
-            user.getUsername(),
-            user.getPassword(),
-            user.getRole().name(),
-            user.getCompany(),
-            user.getCreatedAt()
-        );
+        try {
+            KeyHolder keyHolder = new GeneratedKeyHolder();
+            jdbc.update(connection -> {
+                PreparedStatement ps = connection.prepareStatement(
+                    sql,
+                    Statement.RETURN_GENERATED_KEYS
+                );
+                ps.setString(1, user.getName());
+                ps.setString(2, user.getUsername());
+                ps.setString(3, user.getPassword());
+                ps.setString(4, user.getRole().name());
+                ps.setString(5, user.getCompany());
+                ps.setString(6, user.getCreatedAt());
+                return ps;
+            }, keyHolder);
 
-        return rows > 0;
+            Long id = keyHolder.getKey().longValue();
+            user.setId(id);
+            log.info("Created user: {} (id={})", user.getUsername(), id);
+            return id;
+        } catch (Exception e) {
+            log.error(
+                "Error creating user {}: {}",
+                user.getUsername(),
+                e.getMessage(),
+                e
+            );
+            return null;
+        }
     }
 
     public Optional<User> findByUsername(String username) {
@@ -45,6 +67,7 @@ public class UserRepository {
             User user = jdbc.queryForObject(sql, new UserMapper(), username);
             return Optional.of(user);
         } catch (Exception e) {
+            log.debug("User not found by username: {}", username);
             return Optional.empty();
         }
     }
@@ -55,12 +78,12 @@ public class UserRepository {
             User user = jdbc.queryForObject(sql, new UserMapper(), id);
             return Optional.of(user);
         } catch (Exception e) {
-            log.error("Error finding user by ID: " + id, "\n" + e.getMessage());
+            log.error("Error finding user by ID: {}", id, e);
             return Optional.empty();
         }
     }
 
-    public List<Map<String, Object>> getSavedJobs(Long userId) {
+    public List<Job> getSavedJobs(Long userId) {
         String sql = """
         SELECT job.*, user.company AS company, saved_jobs.saved_at AS saved_at
         FROM saved_jobs
@@ -70,13 +93,32 @@ public class UserRepository {
         ORDER BY saved_jobs.saved_at DESC
         """;
         try {
-            return jdbc.queryForList(sql, userId);
+            return jdbc.query(
+                sql,
+                (rs, rownum) -> {
+                    Job job = new Job();
+                    job.setId(rs.getLong("id"));
+                    job.setTitle(rs.getString("title"));
+                    job.setStatus(Job.Status.valueOf(rs.getString("status")));
+                    job.setAboutRole(rs.getString("about_role"));
+                    job.setRequirements(rs.getString("requirements"));
+                    job.setResponsibilities(rs.getString("responsibilities"));
+                    job.setLocation(rs.getString("location"));
+                    job.setSalary(rs.getInt("salary"));
+                    job.setType(
+                        Job.Type.valueOf(rs.getString("type")).replace("-", "_")
+                    );
+                    job.setCreatedAt(rs.getString("created_at"));
+                    return job;
+                },
+                userId
+            );
         } catch (Exception e) {
             log.error(
-                "Error getting Saved Jobs of user: " +
-                    userId +
-                    "\nError: " +
-                    e.getMessage()
+                "Error getting Saved Jobs of user: {} - {}",
+                userId,
+                e.getMessage(),
+                e
             );
             return List.of();
         }
@@ -94,25 +136,48 @@ public class UserRepository {
             );
             return count != null && count > 0;
         } catch (Exception e) {
+            log.error(
+                "Error checking saved job for user {} job {}: {}",
+                userId,
+                jobId,
+                e.getMessage(),
+                e
+            );
             return false;
         }
     }
 
-    public void saveJob(Long userId, Long jobId) {
+    public boolean saveJob(Long userId, Long jobId) {
         String sql = "INSERT INTO saved_jobs (user_id, job_id) VALUES (?, ?)";
         try {
             jdbc.update(sql, userId, jobId);
+            return true;
         } catch (Exception e) {
-            // log error silently
+            log.error(
+                "Error saving job {} for user {}: {}",
+                jobId,
+                userId,
+                e.getMessage(),
+                e
+            );
+            return false;
         }
     }
 
-    public void unsaveJob(Long userId, Long jobId) {
+    public boolean unsaveJob(Long userId, Long jobId) {
         String sql = "DELETE FROM saved_jobs WHERE user_id = ? AND job_id = ?";
         try {
             jdbc.update(sql, userId, jobId);
+            return true;
         } catch (Exception e) {
-            // log error silently
+            log.error(
+                "Error unsaving job {} for user {}: {}",
+                jobId,
+                userId,
+                e.getMessage(),
+                e
+            );
+            return false;
         }
     }
 }

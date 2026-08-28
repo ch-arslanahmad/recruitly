@@ -1,6 +1,7 @@
 package com.recruitly.backend.repository;
 
 import com.recruitly.backend.model.Job;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -84,14 +85,12 @@ public class JobRepository {
 
             return jobs.stream().findFirst();
         } catch (Exception e) {
-            log.error(
-                "Error finding job by id: " + id + " \n " + e.getMessage()
-            );
+            log.error("Error finding job by id: {}", id, e);
             return Optional.empty();
         }
     }
 
-    public List<Job> findByRecruiter(String recruiterID) {
+    public List<Job> findByRecruiter(Long recruiterID) {
         String query =
             "SELECT job.*, user.company, (SELECT COUNT(*) FROM application WHERE job_id = job.id) AS applicant_count FROM job JOIN user ON job.recruiter_id = user.id WHERE recruiter_id = ? ORDER BY job.created_at DESC";
 
@@ -122,7 +121,7 @@ public class JobRepository {
             );
             return result;
         } catch (Exception e) {
-            log.debug(
+            log.error(
                 "Error finding jobs by recruiter ID: " +
                     recruiterID +
                     " \n " +
@@ -142,53 +141,63 @@ public class JobRepository {
         String query =
             "SELECT job.*, user.company, (SELECT COUNT(*) FROM application WHERE job_id = job.id) AS applicant_count FROM job JOIN user ON job.recruiter_id = user.id WHERE 1=1 ";
 
+        List<Object> params = new ArrayList<>();
+
         if (type.isPresent()) {
-            query += "AND job.type = '" + type.get().toLowerCase() + "' ";
+            query += "AND job.type = ? ";
+            params.add(type.get().toLowerCase());
         }
         if (location.isPresent()) {
-            query += "AND job.location = '" + location.get() + "' ";
+            query += "AND job.location = ? ";
+            params.add(location.get());
         }
 
         if (minSalary.isPresent()) {
-            query += "AND job.salary >= " + minSalary.get() + " ";
+            query += "AND job.salary >= ? ";
+            params.add(minSalary.get());
         }
 
         if (recruiterId.isPresent()) {
-            query += "AND job.recruiter_id = " + recruiterId.get() + " ";
+            query += "AND job.recruiter_id = ? ";
+            params.add(recruiterId.get());
         }
 
         query += "ORDER BY job.created_at DESC";
 
         try {
-            List<Job> result = jdbc.query(query, (rs, rowNum) -> {
-                Job job = new Job();
-                job.setId(rs.getLong("id"));
-                job.setRecruiterId(rs.getLong("recruiter_id"));
-                job.setTitle(rs.getString("title"));
-                job.setStatus(
-                    Job.Status.valueOf(rs.getString("status").toUpperCase())
-                );
-                job.setAboutRole(rs.getString("about_role"));
-                job.setRequirements(rs.getString("requirements"));
-                job.setResponsibilities(rs.getString("responsibilities"));
-                job.setLocation(rs.getString("location"));
-                job.setSalary(rs.getInt("salary"));
-                job.setType(
-                    Job.Type.valueOf(
-                        rs.getString("type").toUpperCase().replace("-", "_")
-                    )
-                );
-                return job;
-            });
+            List<Job> result = jdbc.query(
+                query,
+                (rs, rowNum) -> {
+                    Job job = new Job();
+                    job.setId(rs.getLong("id"));
+                    job.setRecruiterId(rs.getLong("recruiter_id"));
+                    job.setTitle(rs.getString("title"));
+                    job.setStatus(
+                        Job.Status.valueOf(rs.getString("status").toUpperCase())
+                    );
+                    job.setAboutRole(rs.getString("about_role"));
+                    job.setRequirements(rs.getString("requirements"));
+                    job.setResponsibilities(rs.getString("responsibilities"));
+                    job.setLocation(rs.getString("location"));
+                    job.setSalary(rs.getInt("salary"));
+                    job.setType(
+                        Job.Type.valueOf(
+                            rs.getString("type").toUpperCase().replace("-", "_")
+                        )
+                    );
+                    return job;
+                },
+                params.toArray()
+            );
             return result;
         } catch (Exception e) {
-            log.debug("Error finding all jobs: " + " \n " + e.getMessage());
+            log.error("Error finding all jobs: {}", e.getMessage(), e);
 
             return new java.util.ArrayList<Job>();
         }
     }
 
-    public boolean update(Job job) {
+    public boolean update(Long id, Job job) {
         try {
             jdbc.update(
                 "UPDATE job SET title = ?, status = ?, about_role = ?, requirements = ?, responsibilities = ?, location = ?, salary = ?, type = ? WHERE id = ?",
@@ -200,13 +209,11 @@ public class JobRepository {
                 job.getLocation(),
                 job.getSalary(),
                 job.getType().name().toLowerCase().replace("_", "-"),
-                job.getId()
+                id
             );
             return true;
         } catch (Exception e) {
-            log.error(
-                "Error updating job: " + job.getId() + " \n " + e.getMessage()
-            );
+            log.error("Error updating job: {}", id, e);
             return false;
         }
     }
@@ -216,7 +223,7 @@ public class JobRepository {
             jdbc.update("DELETE FROM job WHERE id = ?", id);
             return true;
         } catch (Exception e) {
-            log.error("Error deleting job: " + id + " \n " + e.getMessage());
+            log.error("Error deleting job: {}", id, e);
             return false;
         }
     }
@@ -230,12 +237,13 @@ public class JobRepository {
                 query,
                 recruiterId,
                 recruiterId,
+                recruiterId,
                 recruiterId
             );
-            log.info("Job stats: " + result.toString());
+            log.info("Job stats: {}", result);
             return result;
         } catch (Exception e) {
-            log.error("Error getting job stats: " + e.getMessage());
+            log.error("Error getting job stats: {}", e.getMessage(), e);
             return new HashMap<String, Object>();
         }
     }

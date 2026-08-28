@@ -3,7 +3,6 @@ package com.recruitly.backend.repository;
 import com.recruitly.backend.model.Application;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -34,14 +33,19 @@ public class ApplicationRepository {
             );
             return true;
         } catch (Exception e) {
-            log.debug("Error creating the Application", e.getMessage());
+            log.error("Error creating application for job {} candidate {}: {}", app.getJobId(), app.getCandidateId(), e.getMessage(), e);
             return false;
         }
     }
 
-    record Filter(Long id, Long jobId, Long candidateId, Long recruiterId) {}
+    public record Filter(
+        Long id,
+        Long jobId,
+        Long candidateId,
+        Long recruiterId
+    ) {}
 
-    public Optional<Application> find(Filter filter) {
+    public List<Application> find(Filter filter) {
         String sql = "SELECT * FROM application WHERE 1=1";
         List<String> conditions = new ArrayList<>();
         List<Object> args = new ArrayList<>();
@@ -59,7 +63,9 @@ public class ApplicationRepository {
             args.add(filter.candidateId());
         }
         if (filter.recruiterId() != null) {
-            conditions.add("job_id IN (SELECT id FROM job WHERE recruiter_id = ?)");
+            conditions.add(
+                "job_id IN (SELECT id FROM job WHERE recruiter_id = ?)"
+            );
             args.add(filter.recruiterId());
         }
 
@@ -68,7 +74,7 @@ public class ApplicationRepository {
         }
 
         try {
-            Application app = jdbc.queryForObject(
+            List<Application> app = jdbc.query(
                 sql,
                 (rs, rowNum) -> {
                     Application a = new Application();
@@ -84,10 +90,10 @@ public class ApplicationRepository {
                 },
                 args.toArray()
             );
-            return Optional.ofNullable(app);
+            return app;
         } catch (Exception e) {
-            log.debug("Error finding the Application", e.getMessage());
-            return Optional.empty();
+            log.error("Error finding applications: {}", e.getMessage(), e);
+            return new ArrayList<>();
         }
     }
 
@@ -118,22 +124,25 @@ public class ApplicationRepository {
         try {
             return jdbc.query(
                 query,
-                (rs, rowNum) -> new ApplicationWithCandidate(
-                    rs.getLong("id"),
-                    rs.getLong("job_id"),
-                    rs.getLong("candidate_id"),
-                    Application.Status.valueOf(rs.getString("status").toUpperCase()),
-                    rs.getString("job_title"),
-                    rs.getString("location"),
-                    rs.getInt("salary"),
-                    rs.getString("job_type"),
-                    rs.getString("job_status"),
-                    rs.getString("candidate_name")
-                ),
+                (rs, rowNum) ->
+                    new ApplicationWithCandidate(
+                        rs.getLong("id"),
+                        rs.getLong("job_id"),
+                        rs.getLong("candidate_id"),
+                        Application.Status.valueOf(
+                            rs.getString("status").toUpperCase()
+                        ),
+                        rs.getString("job_title"),
+                        rs.getString("location"),
+                        rs.getInt("salary"),
+                        rs.getString("job_type"),
+                        rs.getString("job_status"),
+                        rs.getString("candidate_name")
+                    ),
                 recruiterId
             );
         } catch (Exception e) {
-            log.debug("Error finding applications by recruiter: " + e.getMessage());
+            log.error("Error finding applications by recruiter {}: {}", recruiterId, e.getMessage(), e);
             return new ArrayList<>();
         }
     }
@@ -157,16 +166,19 @@ public class ApplicationRepository {
         try {
             return jdbc.query(
                 query,
-                (rs, rowNum) -> new JobApplicant(
-                    rs.getLong("application_id"),
-                    rs.getLong("applicant_id"),
-                    rs.getString("candidate_name"),
-                    Application.Status.valueOf(rs.getString("status").toUpperCase())
-                ),
+                (rs, rowNum) ->
+                    new JobApplicant(
+                        rs.getLong("application_id"),
+                        rs.getLong("applicant_id"),
+                        rs.getString("candidate_name"),
+                        Application.Status.valueOf(
+                            rs.getString("status").toUpperCase()
+                        )
+                    ),
                 jobId
             );
         } catch (Exception e) {
-            log.debug("Error finding job applicants: " + e.getMessage());
+            log.error("Error finding job applicants for job {}: {}", jobId, e.getMessage(), e);
             return new ArrayList<>();
         }
     }
@@ -198,35 +210,48 @@ public class ApplicationRepository {
         try {
             return jdbc.query(
                 query,
-                (rs, rowNum) -> new ApplicationWithJob(
-                    rs.getLong("id"),
-                    rs.getLong("job_id"),
-                    rs.getLong("candidate_id"),
-                    Application.Status.valueOf(rs.getString("status").toUpperCase()),
-                    rs.getString("job_title"),
-                    rs.getString("location"),
-                    rs.getInt("salary"),
-                    rs.getString("job_type"),
-                    rs.getString("job_status"),
-                    rs.getString("company")
-                ),
+                (rs, rowNum) ->
+                    new ApplicationWithJob(
+                        rs.getLong("id"),
+                        rs.getLong("job_id"),
+                        rs.getLong("candidate_id"),
+                        Application.Status.valueOf(
+                            rs.getString("status").toUpperCase()
+                        ),
+                        rs.getString("job_title"),
+                        rs.getString("location"),
+                        rs.getInt("salary"),
+                        rs.getString("job_type"),
+                        rs.getString("job_status"),
+                        rs.getString("company")
+                    ),
                 candidateId
             );
         } catch (Exception e) {
-            log.debug("Error finding applications with jobs: " + e.getMessage());
+            log.error("Error finding applications with jobs for candidate {}: {}", candidateId, e.getMessage(), e);
             return new ArrayList<>();
         }
     }
 
-    public boolean updateStatus(Long id, String status) {
-        String sql = "UPDATE application SET status = ? WHERE id = ?";
+    public boolean update(Long id, Application application) {
+        String sql = "UPDATE application";
+
+        List<String> params = new ArrayList<>();
+
+        if (application.getStatus() != null) {
+            sql += " SET status = ?";
+            params.add(application.getStatus().name().toLowerCase());
+        }
+        sql += " WHERE id = ?";
+
+        params.add(String.valueOf(id));
+
         try {
-            int rows = jdbc.update(sql, status, id);
+            int rows = jdbc.update(sql, params.toArray());
             return rows > 0;
         } catch (Exception e) {
-            log.debug("Error updating application status: " + e.getMessage());
+            log.error("Error updating application {}: {}", id, e.getMessage(), e);
             return false;
         }
     }
-
 }
