@@ -84,7 +84,7 @@ export const api = {
 
       toggle: async (jobId: number, isSaved: boolean) => {
         const method = isSaved ? "DELETE" : "POST";
-        const url = isSaved ? `/api/saved-jobs/${jobId}` : "/api/saved-jobs";
+        const url = `/api/saved-jobs/${jobId}`;
 
         return fetch(url, {
           method,
@@ -92,8 +92,6 @@ export const api = {
             "Content-Type": "application/json",
             ...authHeaders(),
           },
-          body:
-            method === "POST" ? JSON.stringify({ job_id: jobId }) : undefined,
         }).then((r) => {
           if (!r.ok)
             throw {
