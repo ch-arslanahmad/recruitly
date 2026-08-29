@@ -22,6 +22,8 @@ public class ApplicationRepository {
     }
 
     public boolean create(Application app) {
+        app.setStatus(Application.Status.APPLIED);
+
         String sql =
             "INSERT INTO application (job_id, candidate_id, status) VALUES (?, ?, ?)";
         try {
@@ -33,7 +35,13 @@ public class ApplicationRepository {
             );
             return true;
         } catch (Exception e) {
-            log.error("Error creating application for job {} candidate {}: {}", app.getJobId(), app.getCandidateId(), e.getMessage(), e);
+            log.error(
+                "Error creating application for job {} candidate {}: {}",
+                app.getJobId(),
+                app.getCandidateId(),
+                e.getMessage(),
+                e
+            );
             return false;
         }
     }
@@ -142,7 +150,12 @@ public class ApplicationRepository {
                 recruiterId
             );
         } catch (Exception e) {
-            log.error("Error finding applications by recruiter {}: {}", recruiterId, e.getMessage(), e);
+            log.error(
+                "Error finding applications by recruiter {}: {}",
+                recruiterId,
+                e.getMessage(),
+                e
+            );
             return new ArrayList<>();
         }
     }
@@ -178,7 +191,12 @@ public class ApplicationRepository {
                 jobId
             );
         } catch (Exception e) {
-            log.error("Error finding job applicants for job {}: {}", jobId, e.getMessage(), e);
+            log.error(
+                "Error finding job applicants for job {}: {}",
+                jobId,
+                e.getMessage(),
+                e
+            );
             return new ArrayList<>();
         }
     }
@@ -228,29 +246,42 @@ public class ApplicationRepository {
                 candidateId
             );
         } catch (Exception e) {
-            log.error("Error finding applications with jobs for candidate {}: {}", candidateId, e.getMessage(), e);
+            log.error(
+                "Error finding applications with jobs for candidate {}: {}",
+                candidateId,
+                e.getMessage(),
+                e
+            );
             return new ArrayList<>();
         }
     }
 
-    public boolean update(Long id, Application application) {
+    public boolean update(Long id, Long recruiterId, Application application) {
         String sql = "UPDATE application";
 
         List<String> params = new ArrayList<>();
 
-        if (application.getStatus() != null) {
-            sql += " SET status = ?";
-            params.add(application.getStatus().name().toLowerCase());
+        if (application.getStatus() == null) {
+            return false;
         }
-        sql += " WHERE id = ?";
+        sql += " SET status = ?";
+        params.add(application.getStatus().name().toLowerCase());
+        sql +=
+            " WHERE id = ? AND job_id IN (SELECT id FROM job WHERE recruiter_id = ?)";
 
         params.add(String.valueOf(id));
+        params.add(String.valueOf(recruiterId));
 
         try {
             int rows = jdbc.update(sql, params.toArray());
             return rows > 0;
         } catch (Exception e) {
-            log.error("Error updating application {}: {}", id, e.getMessage(), e);
+            log.error(
+                "Error updating application {}: {}",
+                id,
+                e.getMessage(),
+                e
+            );
             return false;
         }
     }

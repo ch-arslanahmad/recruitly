@@ -106,7 +106,7 @@ public class UserRepository {
                     job.setLocation(rs.getString("location"));
                     job.setSalary(rs.getInt("salary"));
                     job.setType(
-                        Job.Type.valueOf(rs.getString("type")).replace("-", "_")
+                        Job.Type.valueOf(rs.getString("type").replace("-", "_"))
                     );
                     job.setCreatedAt(rs.getString("created_at"));
                     return job;

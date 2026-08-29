@@ -2,6 +2,7 @@ package com.recruitly.backend.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
@@ -22,8 +23,25 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth ->
                 auth
-                    .requestMatchers("/api/auth/**", "/*")
+                    .requestMatchers("/api/auth/**", "/*") // auth & public endpoints
                     .permitAll()
+                    .requestMatchers(HttpMethod.POST, "/api/jobs") // create job (recruiter)
+                    .hasRole("RECRUITER")
+                    .requestMatchers(HttpMethod.PUT, "/api/jobs/**") // update job (recruiter)
+                    .hasRole("RECRUITER")
+                    .requestMatchers(HttpMethod.DELETE, "/api/jobs/**") // delete job (recruiter)
+                    .hasRole("RECRUITER")
+                    .requestMatchers("/api/jobs/my", "/api/jobs/stats") // my jobs & stats (recruiter)
+                    .hasRole("RECRUITER")
+                    .requestMatchers("/api/applications/my") // my applications (applicant)
+                    .hasRole("APPLICANT")
+                    .requestMatchers("/api/saved-jobs/**") // saved jobs (applicant)
+                    .hasRole("APPLICANT")
+                    .requestMatchers(
+                        "/api/applications/applicants",
+                        "/api/applications/job/**"
+                    )
+                    .hasRole("RECRUITER") // applicants & applications (recruiter)
                     .anyRequest()
                     .authenticated()
             )

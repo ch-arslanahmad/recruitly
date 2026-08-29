@@ -33,7 +33,8 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody User user) {
-        User oldUser = userRepo.findByUsername(user.getUsername()).orElse(null);
+        try {
+            User oldUser = userRepo.findByUsername(user.getUsername()).orElse(null);
 
         // not found check
         if (oldUser == null) {
@@ -71,55 +72,68 @@ public class AuthController {
         // generate token
         String token = jwtUtil.generateToken(
             oldUser.getId(),
-            user.getRole().toString()
+            oldUser.getRole().toString()
         );
 
         log.info(
             "User: " +
-                user.getUsername() +
+                oldUser.getUsername() +
                 "(" +
-                user.getId() +
+                oldUser.getId() +
                 ") logged in successfully!"
         );
 
         return ResponseEntity.ok(
             Map.of(
                 "username",
-                user.getUsername(),
+                oldUser.getUsername(),
                 "role",
-                user.getRole(),
+                oldUser.getRole(),
                 "token",
                 token,
                 "message",
                 "Login successful"
             )
         );
+        } catch (Exception e) {
+            log.error("Login failed for user: {}", user.getUsername(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                Map.of("message", "Login failed")
+            );
+        }
     }
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody User user) {
-        user.setPassword(encoder.encode(user.getPassword()));
+        try {
+            user.setPassword(encoder.encode(user.getPassword()));
 
-        user.setId(userRepo.create(user));
+            user.setId(userRepo.create(user));
 
-        String token = jwtUtil.generateToken(
-            user.getId(),
-            user.getRole().toString()
-        );
+            String token = jwtUtil.generateToken(
+                user.getId(),
+                user.getRole().toString()
+            );
 
-        log.info("User: " + user.getUsername() + " registered successfully!");
+            log.info("User: " + user.getUsername() + " registered successfully!");
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(
-            Map.of(
-                "username",
-                user.getUsername(),
-                "role",
-                user.getRole(),
-                "token",
-                token,
-                "message",
-                "Registration successful"
-            )
-        );
+            return ResponseEntity.status(HttpStatus.CREATED).body(
+                Map.of(
+                    "username",
+                    user.getUsername(),
+                    "role",
+                    user.getRole(),
+                    "token",
+                    token,
+                    "message",
+                    "Registration successful"
+                )
+            );
+        } catch (Exception e) {
+            log.error("Registration failed for user: {}", user.getUsername(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                Map.of("message", "Registration failed")
+            );
+        }
     }
 }
