@@ -9,7 +9,10 @@ import {
 } from "./types";
 
 const token = () => localStorage.getItem("recruitly_token");
-const authHeaders = () => ({ Authorization: `Bearer ${token()}` });
+const authHeaders = () => {
+  const t = token();
+  return t ? { Authorization: `Bearer ${t}` } : {};
+};
 
 export const api = {
   auth: {
@@ -84,7 +87,7 @@ export const api = {
 
       toggle: async (jobId: number, isSaved: boolean) => {
         const method = isSaved ? "DELETE" : "POST";
-        const url = isSaved ? `/api/saved-jobs/${jobId}` : "/api/saved-jobs";
+        const url = `/api/saved-jobs/${jobId}`;
 
         return fetch(url, {
           method,
@@ -92,8 +95,6 @@ export const api = {
             "Content-Type": "application/json",
             ...authHeaders(),
           },
-          body:
-            method === "POST" ? JSON.stringify({ job_id: jobId }) : undefined,
         }).then((r) => {
           if (!r.ok)
             throw {
