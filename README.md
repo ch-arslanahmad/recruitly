@@ -1,21 +1,21 @@
 # Recruitly
 
-A full-stack job board where employers post jobs and applicants search, filter, and apply. Built with React and Express, with a Spring Boot (Java) backend rewrite in progress on the `migrate/spring-boot` branch.
+A full-stack job board where employers post jobs and applicants search, filter, and apply. Built with React (TypeScript) on the frontend and **Spring Boot (Java)** on the backend.
 
-**Stack:** React, Express.js (Node) or Spring Boot (Java), SQLite, JWT
+**Stack:** React (Vite + TS), Spring Boot (Java), SQLite, JWT
 
 ## Features
 
 ### Authentication
 - Register as Employer or Applicant
 - Login / Logout
-- Role-based access control
+- Role-based access control (JWT)
 
 ### Job Listings
 - Browse all jobs
 - Search by keyword
-- Filter by location, job type, salary range
-- Sort by date or salary
+- Filter by job type
+- Sort by date or title
 - Pagination
 
 ### Employer Dashboard
@@ -28,24 +28,23 @@ A full-stack job board where employers post jobs and applicants search, filter, 
 - Track application status
 - Save jobs for later
 
-
 ## Project Structure
 
 ```
 recruitly/
-├── frontend/          # React app
-│   ├── src/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   ├── context/
-│   │   └── App.jsx
-│   └── package.json
-├── backend/           # Express API
-│   ├── src/
-│   │   ├── routes/
-│   │   ├── middleware/
-│   │   └── db/
-│   └── package.json
+├── frontend/           # React app (Vite + TypeScript)
+│   └── src/
+│       ├── components/
+│       ├── pages/
+│       └── App.tsx
+├── backend/            # Spring Boot API (Java 21)
+│   └── src/main/java/com/recruitly/backend/
+│       ├── controllers/
+│       ├── repository/
+│       ├── model/
+│       └── config/
 └── README.md
 ```
 
+> Branch `migrate/spring-boot` holds the current Spring Boot backend (code-complete,
+> compiles) — see `todo.md` for the one remaining smoke test.
