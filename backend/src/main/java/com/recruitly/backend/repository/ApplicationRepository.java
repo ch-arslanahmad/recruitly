@@ -1,5 +1,6 @@
 package com.recruitly.backend.repository;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.recruitly.backend.model.Application;
 import java.util.ArrayList;
 import java.util.List;
@@ -105,17 +106,17 @@ public class ApplicationRepository {
         }
     }
 
-    record ApplicationWithCandidate(
+    public record ApplicationWithCandidate(
         Long id,
-        Long jobId,
-        Long candidateId,
+        @JsonProperty("job_id") Long jobId,
+        @JsonProperty("candidate_id") Long candidateId,
         Application.Status status,
-        String jobTitle,
+        @JsonProperty("job_title") String jobTitle,
         String location,
         Integer salary,
-        String jobType,
-        String jobStatus,
-        String candidateName
+        @JsonProperty("job_type") String jobType,
+        @JsonProperty("job_status") String jobStatus,
+        @JsonProperty("candidate_name") String candidateName
     ) {}
 
     public List<ApplicationWithCandidate> findByRecruiter(Long recruiterId) {
@@ -160,20 +161,21 @@ public class ApplicationRepository {
         }
     }
 
-    record JobApplicant(
-        Long applicationId,
-        Long applicantId,
-        String candidateName,
+    public record JobApplicant(
+        @JsonProperty("application_id") Long applicationId,
+        @JsonProperty("applicant_id") Long applicantId,
+        @JsonProperty("candidate_name") String candidateName,
         Application.Status status
     ) {}
 
-    public List<JobApplicant> findJobApplicants(Long jobId) {
+    public List<JobApplicant> findJobApplicants(Long jobId, Long recruiterId) {
         String query =
             "SELECT app.id AS application_id, applicant.id AS applicant_id, " +
             "applicant.name AS candidate_name, app.status " +
             "FROM application AS app " +
             "JOIN user AS applicant ON app.candidate_id = applicant.id " +
-            "WHERE app.job_id = ? " +
+            "JOIN job ON app.job_id = job.id " +
+            "WHERE app.job_id = ? AND job.recruiter_id = ? " +
             "ORDER BY app.created_at DESC";
 
         try {
@@ -188,7 +190,8 @@ public class ApplicationRepository {
                             rs.getString("status").toUpperCase()
                         )
                     ),
-                jobId
+                jobId,
+                recruiterId
             );
         } catch (Exception e) {
             log.error(
@@ -201,16 +204,16 @@ public class ApplicationRepository {
         }
     }
 
-    record ApplicationWithJob(
+    public record ApplicationWithJob(
         Long id,
-        Long jobId,
-        Long candidateId,
+        @JsonProperty("job_id") Long jobId,
+        @JsonProperty("candidate_id") Long candidateId,
         Application.Status status,
-        String jobTitle,
+        @JsonProperty("job_title") String jobTitle,
         String location,
         Integer salary,
-        String jobType,
-        String jobStatus,
+        @JsonProperty("job_type") String jobType,
+        @JsonProperty("job_status") String jobStatus,
         String company
     ) {}
 

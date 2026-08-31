@@ -35,7 +35,7 @@ public class JobController {
                 Optional.empty()
             );
 
-            return ResponseEntity.ok(Map.of("jobs", jobs));
+            return ResponseEntity.ok(jobs);
         } catch (Exception e) {
             logger.error("Error listing jobs", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
@@ -50,10 +50,6 @@ public class JobController {
         try {
             List<Job> jobs = jobRepo.findByRecruiter(userID);
 
-            if (jobs.isEmpty()) return ResponseEntity.status(
-                HttpStatus.NOT_FOUND
-            ).body(Map.of("message", "No jobs found"));
-
             return ResponseEntity.ok(Map.of("jobs", jobs));
         } catch (Exception e) {
             logger.error("Error fetching recruiter jobs for user: {}", userID, e);
@@ -65,10 +61,11 @@ public class JobController {
 
     // GET /api/jobs/stats — recruiter dashboard stats
     @GetMapping("/stats")
+    
     public ResponseEntity<?> stats(@AuthenticationPrincipal Long userID) {
         try {
             Map<String, Object> repo = jobRepo.stats(userID);
-            return ResponseEntity.ok(Map.of("stats", repo));
+            return ResponseEntity.ok(repo);
         } catch (Exception e) {
             logger.error("Error fetching stats for user: {}", userID, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(

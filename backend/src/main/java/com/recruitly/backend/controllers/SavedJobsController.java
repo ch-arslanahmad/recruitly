@@ -31,9 +31,7 @@ public class SavedJobsController {
         try {
             List<Job> savedJobs = userRepo.getSavedJobs(userId);
 
-            if (savedJobs.isEmpty()) return ResponseEntity.noContent().build();
-
-            return ResponseEntity.ok(Map.of("saved_jobs", savedJobs));
+            return ResponseEntity.ok(savedJobs);
         } catch (Exception e) {
             logger.error("Error listing saved jobs for user: {}", userId, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
@@ -87,9 +85,7 @@ public class SavedJobsController {
         try {
             boolean isSaved = userRepo.isSavedJob(userId, jobId);
 
-            if (!isSaved) return ResponseEntity.noContent().build();
-
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(Map.of("isSaved", isSaved));
         } catch (Exception e) {
             logger.error("Error checking saved job: {} for user: {}", jobId, userId, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();

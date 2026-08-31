@@ -2,7 +2,6 @@ package com.recruitly.backend.repository;
 
 import com.recruitly.backend.model.Job;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -24,6 +23,9 @@ public class JobRepository {
     }
 
     public boolean create(Job job) {
+        job.setStatus(Job.Status.OPEN);
+        job.setType(Job.Type.FULL_TIME);
+
         jdbc.update(
             "INSERT INTO job (recruiter_id, title, status, about_role, requirements, responsibilities, location, salary, type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
             job.getRecruiterId(),
@@ -43,16 +45,17 @@ public class JobRepository {
         Optional<Long> id,
         Optional<Long> recruiterId
     ) {
-        String query = "SELECT * FROM job WHERE 1=1 ";
+        String query =
+            "SELECT job.*, user.company AS company FROM job JOIN user ON job.recruiter_id = user.id WHERE 1=1 ";
 
         List<String> params = new ArrayList<>();
 
         if (id.isPresent()) {
-            query += "AND id = ?";
+            query += "AND job.id = ?";
             params.add(id.get().toString());
         }
         if (recruiterId.isPresent()) {
-            query += "AND recruiter_id = ?";
+            query += "AND job.recruiter_id = ?";
             params.add(recruiterId.get().toString());
         }
 
@@ -62,6 +65,7 @@ public class JobRepository {
                 Job j = new Job();
                 j.setId(rs.getLong("id"));
                 j.setRecruiterId(rs.getLong("recruiter_id"));
+                j.setCompany(rs.getString("company"));
                 j.setTitle(rs.getString("title"));
                 j.setStatus(
                     Job.Status.valueOf(rs.getString("status").toUpperCase())
@@ -71,6 +75,7 @@ public class JobRepository {
                 j.setResponsibilities(rs.getString("responsibilities"));
                 j.setLocation(rs.getString("location"));
                 j.setSalary(rs.getInt("salary"));
+                j.setCreatedAt(rs.getString("created_at"));
                 j.setType(
                     Job.Type.valueOf(
                         rs.getString("type").toUpperCase().replace("-", "_")
@@ -94,6 +99,7 @@ public class JobRepository {
                 Job job = new Job();
                 job.setId(rs.getLong("id"));
                 job.setRecruiterId(rs.getLong("recruiter_id"));
+                job.setCompany(rs.getString("company"));
                 job.setTitle(rs.getString("title"));
                 job.setStatus(
                     Job.Status.valueOf(rs.getString("status").toUpperCase())
@@ -103,6 +109,7 @@ public class JobRepository {
                 job.setResponsibilities(rs.getString("responsibilities"));
                 job.setLocation(rs.getString("location"));
                 job.setSalary(rs.getInt("salary"));
+                job.setCreatedAt(rs.getString("created_at"));
                 job.setType(
                     Job.Type.valueOf(
                         rs.getString("type").toUpperCase().replace("-", "_")
@@ -154,6 +161,7 @@ public class JobRepository {
                     Job job = new Job();
                     job.setId(rs.getLong("id"));
                     job.setRecruiterId(rs.getLong("recruiter_id"));
+                    job.setCompany(rs.getString("company"));
                     job.setTitle(rs.getString("title"));
                     job.setStatus(
                         Job.Status.valueOf(rs.getString("status").toUpperCase())
@@ -163,6 +171,7 @@ public class JobRepository {
                     job.setResponsibilities(rs.getString("responsibilities"));
                     job.setLocation(rs.getString("location"));
                     job.setSalary(rs.getInt("salary"));
+                    job.setCreatedAt(rs.getString("created_at"));
                     job.setType(
                         Job.Type.valueOf(
                             rs.getString("type").toUpperCase().replace("-", "_")
@@ -181,19 +190,65 @@ public class JobRepository {
     }
 
     public boolean update(Long id, Long recruiterID, Job job) {
-        int rows = jdbc.update(
-            "UPDATE job SET title = ?, status = ?, about_role = ?, requirements = ?, responsibilities = ?, location = ?, salary = ?, type = ? WHERE id = ? AND recruiter_id = ?",
-            job.getTitle(),
-            job.getStatus().toString().toLowerCase(),
-            job.getAboutRole(),
-            job.getRequirements(),
-            job.getResponsibilities(),
-            job.getLocation(),
-            job.getSalary(),
-            job.getType().name().toLowerCase().replace("_", "-"),
-            id,
-            recruiterID
-        );
+        if (recruiterID == null || id == null) {
+            return false;
+        }
+
+        List<String> sets = new ArrayList<>();
+        List<Object> params = new ArrayList<>();
+
+        if (job.getTitle() != null) {
+            sets.add("title = ?");
+            params.add(job.getTitle());
+        }
+
+        if (job.getStatus() != null) {
+            sets.add("status = ?");
+            params.add(job.getStatus().name().toLowerCase());
+        }
+
+        if (job.getAboutRole() != null) {
+            sets.add("about_role = ?");
+            params.add(job.getAboutRole());
+        }
+
+        if (job.getRequirements() != null) {
+            sets.add("requirements = ?");
+            params.add(job.getRequirements());
+        }
+
+        if (job.getResponsibilities() != null) {
+            sets.add("responsibilities = ?");
+            params.add(job.getResponsibilities());
+        }
+
+        if (job.getLocation() != null) {
+            sets.add("location = ?");
+            params.add(job.getLocation());
+        }
+
+        if (job.getSalary() != null) {
+            sets.add("salary = ?");
+            params.add(job.getSalary());
+        }
+
+        if (job.getType() != null) {
+            sets.add("type = ?");
+            params.add(job.getType().name().toLowerCase().replace("_", "-"));
+        }
+
+        if (sets.isEmpty()) {
+            return false;
+        }
+
+        String sql =
+            "UPDATE job SET " +
+            String.join(", ", sets) +
+            " WHERE id = ? AND recruiter_id = ?";
+        params.add(id);
+        params.add(recruiterID);
+
+        int rows = jdbc.update(sql, params.toArray());
         return rows > 0;
     }
 

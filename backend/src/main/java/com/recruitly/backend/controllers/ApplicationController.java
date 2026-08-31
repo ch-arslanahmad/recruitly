@@ -2,6 +2,9 @@ package com.recruitly.backend.controllers;
 
 import com.recruitly.backend.model.Application;
 import com.recruitly.backend.repository.ApplicationRepository;
+import com.recruitly.backend.repository.ApplicationRepository.ApplicationWithCandidate;
+import com.recruitly.backend.repository.ApplicationRepository.ApplicationWithJob;
+import com.recruitly.backend.repository.ApplicationRepository.JobApplicant;
 import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -42,7 +45,11 @@ public class ApplicationController {
 
             return ResponseEntity.ok("Applied successfully");
         } catch (Exception e) {
-            logger.error("Error applying to job for candidate: {}", candidateID, e);
+            logger.error(
+                "Error applying to job for candidate: {}",
+                candidateID,
+                e
+            );
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                 "Failed to apply"
             );
@@ -55,17 +62,17 @@ public class ApplicationController {
         @AuthenticationPrincipal Long candidateId
     ) {
         try {
-            List<Application> app = appRepo.find(
-                new ApplicationRepository.Filter(null, null, candidateId, null)
+            List<ApplicationWithJob> app = appRepo.findByCandidateWithJobs(
+                candidateId
             );
 
-            if (app.isEmpty()) {
-                return ResponseEntity.noContent().build();
-            }
-
-            return ResponseEntity.ok(Map.of("app", app));
+            return ResponseEntity.ok(app);
         } catch (Exception e) {
-            logger.error("Error fetching applications for candidate: {}", candidateId, e);
+            logger.error(
+                "Error fetching applications for candidate: {}",
+                candidateId,
+                e
+            );
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                 Map.of("message", "Failed to fetch applications")
             );
@@ -75,20 +82,20 @@ public class ApplicationController {
     // GET /api/applications/applicants — recruiter's applicants
     @GetMapping("/applicants")
     public ResponseEntity<?> myApplicants(
-        @AuthenticationPrincipal Long userId
+        @AuthenticationPrincipal Long recruiterID
     ) {
         try {
-            List<Application> apps = appRepo.find(
-                new ApplicationRepository.Filter(null, null, null, userId)
+            List<ApplicationWithCandidate> apps = appRepo.findByRecruiter(
+                recruiterID
             );
 
-            if (apps.isEmpty()) {
-                return ResponseEntity.noContent().build();
-            }
-
-            return ResponseEntity.ok(Map.of("apps", apps));
+            return ResponseEntity.ok(apps);
         } catch (Exception e) {
-            logger.error("Error fetching applicants for recruiter: {}", userId, e);
+            logger.error(
+                "Error fetching applicants for recruiter: {}",
+                recruiterID,
+                e
+            );
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                 Map.of("message", "Failed to fetch applicants")
             );
@@ -99,20 +106,24 @@ public class ApplicationController {
     @GetMapping("/job/{id}")
     public ResponseEntity<?> jobApplications(
         @AuthenticationPrincipal Long recruiterId,
-        @PathVariable Long id
+        @PathVariable Long JobId
     ) {
         try {
-            List<Application> apps = appRepo.find(
-                new ApplicationRepository.Filter(id, null, null, recruiterId)
+            List<JobApplicant> apps = appRepo.findJobApplicants(
+                JobId,
+                recruiterId
             );
 
-            if (apps.isEmpty()) {
-                return ResponseEntity.noContent().build();
-            }
-
-            return ResponseEntity.ok(Map.of("apps", apps));
+            return ResponseEntity.ok(apps);
         } catch (Exception e) {
-            logger.error("Error fetching applicants for job: {} by recruiter: {}", id, recruiterId, e);
+            logger.error(
+                "Error fetching applicants for job: {} by recruiter: {}",
+                recruiterId +
+                    "\nJobID: " +
+                    JobId +
+                    "\nMessage: " +
+                    e.getMessage()
+            );
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                 Map.of("message", "Failed to fetch applicants")
             );
@@ -134,12 +145,19 @@ public class ApplicationController {
             boolean isUpdated = appRepo.update(id, recruiterId, body);
 
             if (!isUpdated) {
-                return ResponseEntity.badRequest().body("Failed to update status");
+                return ResponseEntity.badRequest().body(
+                    "Failed to update status"
+                );
             }
 
             return ResponseEntity.ok("Status updated successfully");
         } catch (Exception e) {
-            logger.error("Error updating application: {} by recruiter: {}", id, recruiterId, e);
+            logger.error(
+                "Error updating application: {} by recruiter: {}",
+                id,
+                recruiterId,
+                e
+            );
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                 "Failed to update status"
             );

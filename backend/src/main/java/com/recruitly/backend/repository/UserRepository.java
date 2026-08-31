@@ -98,15 +98,20 @@ public class UserRepository {
                 (rs, rownum) -> {
                     Job job = new Job();
                     job.setId(rs.getLong("id"));
+                    job.setCompany(rs.getString("company"));
                     job.setTitle(rs.getString("title"));
-                    job.setStatus(Job.Status.valueOf(rs.getString("status")));
+                    job.setStatus(
+                        Job.Status.valueOf(rs.getString("status").toUpperCase())
+                    );
                     job.setAboutRole(rs.getString("about_role"));
                     job.setRequirements(rs.getString("requirements"));
                     job.setResponsibilities(rs.getString("responsibilities"));
                     job.setLocation(rs.getString("location"));
                     job.setSalary(rs.getInt("salary"));
                     job.setType(
-                        Job.Type.valueOf(rs.getString("type").replace("-", "_"))
+                        Job.Type.valueOf(
+                            rs.getString("type").toUpperCase().replace("-", "_")
+                        )
                     );
                     job.setCreatedAt(rs.getString("created_at"));
                     return job;
