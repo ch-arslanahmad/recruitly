@@ -34,67 +34,60 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody User user) {
         try {
-            User oldUser = userRepo.findByUsername(user.getUsername()).orElse(null);
+            User oldUser = userRepo
+                .findByUsername(user.getUsername())
+                .orElse(null);
 
-        // not found check
-        if (oldUser == null) {
-            log.warn(
-                "User: " +
-                    user.getUsername() +
-                    "failed to log in due to user not found!"
+            // not found check
+            if (oldUser == null) {
+                log.warn(
+                    "User: " +
+                        user.getUsername() +
+                        "failed to log in due to user not found!"
+                );
+
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    Map.of("message", "User not found, you must register first")
+                );
+            }
+
+            // password check
+            if (!encoder.matches(user.getPassword(), oldUser.getPassword())) {
+                log.warn(
+                    "User: " +
+                        user.getUsername() +
+                        "(" +
+                        user.getId() +
+                        ") failed to log in due to incorrect password!"
+                );
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+                    Map.of("message", "Incorrect password")
+                );
+            }
+
+            if (!(user.getRole() == oldUser.getRole())) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+                    Map.of("message", "Unauthorized role of user.")
+                );
+            }
+
+            // generate token
+            String token = jwtUtil.generateToken(
+                oldUser.getId(),
+                oldUser.getRole().toString()
             );
 
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                Map.of("message", "User not found, you must register first")
-            );
-        }
-
-        // password check
-        if (!encoder.matches(user.getPassword(), oldUser.getPassword())) {
-            log.warn(
+            log.info(
                 "User: " +
-                    user.getUsername() +
+                    oldUser.getUsername() +
                     "(" +
-                    user.getId() +
-                    ") failed to log in due to incorrect password!"
+                    oldUser.getId() +
+                    ") logged in successfully!"
             );
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-                Map.of("message", "Incorrect password")
+
+            return ResponseEntity.ok(
+                Map.of("token", token, "user", oldUser.getUserMap())
             );
-        }
-
-        if (!(user.getRole() == oldUser.getRole())) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-                Map.of("message", "Unauthorized role of user.")
-            );
-        }
-
-        // generate token
-        String token = jwtUtil.generateToken(
-            oldUser.getId(),
-            oldUser.getRole().toString()
-        );
-
-        log.info(
-            "User: " +
-                oldUser.getUsername() +
-                "(" +
-                oldUser.getId() +
-                ") logged in successfully!"
-        );
-
-        return ResponseEntity.ok(
-            Map.of(
-                "username",
-                oldUser.getUsername(),
-                "role",
-                oldUser.getRole(),
-                "token",
-                token,
-                "message",
-                "Login successful"
-            )
-        );
         } catch (Exception e) {
             log.error("Login failed for user: {}", user.getUsername(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
@@ -106,6 +99,12 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody User user) {
         try {
+            if (userRepo.findByUsername(user.getUsername()).isPresent()) {
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(
+                    Map.of("message", "Username already exists")
+                );
+            }
+
             user.setPassword(encoder.encode(user.getPassword()));
 
             user.setId(userRepo.create(user));
@@ -115,22 +114,19 @@ public class AuthController {
                 user.getRole().toString()
             );
 
-            log.info("User: " + user.getUsername() + " registered successfully!");
+            log.info(
+                "User: " + user.getUsername() + " registered successfully!"
+            );
 
             return ResponseEntity.status(HttpStatus.CREATED).body(
-                Map.of(
-                    "username",
-                    user.getUsername(),
-                    "role",
-                    user.getRole(),
-                    "token",
-                    token,
-                    "message",
-                    "Registration successful"
-                )
+                Map.of("token", token, "user", user.getUserMap())
             );
         } catch (Exception e) {
-            log.error("Registration failed for user: {}", user.getUsername(), e);
+            log.error(
+                "Registration failed for user: {}",
+                user.getUsername(),
+                e
+            );
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                 Map.of("message", "Registration failed")
             );

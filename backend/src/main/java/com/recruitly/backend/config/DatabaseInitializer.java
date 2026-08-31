@@ -30,7 +30,10 @@ public class DatabaseInitializer implements ApplicationRunner {
             Connection conn = dataSource.getConnection();
             Statement stmt = conn.createStatement()
         ) {
-            stmt.executeUpdate(schema);
-        }
+            String sql = schema.replaceAll("(?m)^\\s*--.*$", "").trim();
+            if (!sql.isEmpty()) {
+                stmt.executeUpdate(sql);
+            }
+        } // for each operation
     }
 }

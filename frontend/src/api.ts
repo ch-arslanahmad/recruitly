@@ -9,7 +9,10 @@ import {
 } from "./types";
 
 const token = () => localStorage.getItem("recruitly_token");
-const authHeaders = () => ({ Authorization: `Bearer ${token()}` });
+const authHeaders = () => {
+  const t = token();
+  return t ? { Authorization: `Bearer ${t}` } : {};
+};
 
 export const api = {
   auth: {

@@ -1,8 +1,8 @@
 # Recruitly
 
-A full-stack job board where employers post jobs and applicants search, filter, and apply. Built with React and Express.
+A full-stack job board where employers post jobs and applicants search, filter, and apply. Built with React and Express, with a Spring Boot (Java) backend rewrite in progress on the `migrate/spring-boot` branch.
 
-**Stack:** React, Express.js, SQLite, JWT
+**Stack:** React, Express.js (Node) or Spring Boot (Java), SQLite, JWT
 
 ## Features
 

@@ -23,18 +23,29 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth ->
                 auth
-                    .requestMatchers("/api/auth/**", "/*") // auth & public endpoints
+                    .requestMatchers("/", "/health", "/api/auth/**") // auth & public endpoints
                     .permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/jobs") // browse jobs (public)
+                    .permitAll()
+
+                    .requestMatchers("/api/jobs/my", "/api/jobs/stats") // my jobs & stats (recruiter) — BEFORE the {id} pattern
+                    .hasRole("RECRUITER")
+                    .requestMatchers(HttpMethod.GET, "/api/jobs/{id}") // job detail (public)
+                    .permitAll()
+
                     .requestMatchers(HttpMethod.POST, "/api/jobs") // create job (recruiter)
                     .hasRole("RECRUITER")
                     .requestMatchers(HttpMethod.PUT, "/api/jobs/**") // update job (recruiter)
                     .hasRole("RECRUITER")
                     .requestMatchers(HttpMethod.DELETE, "/api/jobs/**") // delete job (recruiter)
                     .hasRole("RECRUITER")
-                    .requestMatchers("/api/jobs/my", "/api/jobs/stats") // my jobs & stats (recruiter)
-                    .hasRole("RECRUITER")
-                    .requestMatchers("/api/applications/my") // my applications (applicant)
+
+                    .requestMatchers(HttpMethod.POST, "/api/applications") // apply to job (applicant)
                     .hasRole("APPLICANT")
+                    .requestMatchers(HttpMethod.GET, "/api/applications/my") // my applications (applicant)
+                    .hasRole("APPLICANT")
+                    .requestMatchers(HttpMethod.PUT, "/api/applications/**") // status update (recruiter)
+                    .hasRole("RECRUITER")
                     .requestMatchers("/api/saved-jobs/**") // saved jobs (applicant)
                     .hasRole("APPLICANT")
                     .requestMatchers(
