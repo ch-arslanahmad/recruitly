@@ -47,14 +47,24 @@ public class SavedJobsController {
         @PathVariable Long jobId
     ) {
         try {
+            boolean alreadySaved = userRepo.isSavedJob(userId, jobId);
+
+            if (alreadySaved) return ResponseEntity.status(
+                HttpStatus.CONFLICT
+            ).body(Map.of("message", "Job is already saved"));
+
             boolean isSaved = userRepo.saveJob(userId, jobId);
 
-            if (!isSaved) return ResponseEntity.badRequest().build();
+            if (!isSaved) return ResponseEntity.status(
+                HttpStatus.INTERNAL_SERVER_ERROR
+            ).body("Unable to save job");
 
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             logger.error("Error saving job: {} for user: {}", jobId, userId, e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(
+                HttpStatus.INTERNAL_SERVER_ERROR
+            ).build();
         }
     }
 
@@ -67,12 +77,21 @@ public class SavedJobsController {
         try {
             boolean isUnsaved = userRepo.unsaveJob(userId, jobId);
 
-            if (!isUnsaved) return ResponseEntity.badRequest().build();
+            if (!isUnsaved) return ResponseEntity.status(
+                HttpStatus.NOT_FOUND
+            ).body(Map.of("message", "Saved job not found"));
 
             return ResponseEntity.ok().build();
         } catch (Exception e) {
-            logger.error("Error unsaving job: {} for user: {}", jobId, userId, e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            logger.error(
+                "Error unsaving job: {} for user: {}",
+                jobId,
+                userId,
+                e
+            );
+            return ResponseEntity.status(
+                HttpStatus.INTERNAL_SERVER_ERROR
+            ).build();
         }
     }
 
@@ -87,8 +106,15 @@ public class SavedJobsController {
 
             return ResponseEntity.ok(Map.of("isSaved", isSaved));
         } catch (Exception e) {
-            logger.error("Error checking saved job: {} for user: {}", jobId, userId, e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            logger.error(
+                "Error checking saved job: {} for user: {}",
+                jobId,
+                userId,
+                e
+            );
+            return ResponseEntity.status(
+                HttpStatus.INTERNAL_SERVER_ERROR
+            ).build();
         }
     }
 }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.recruitly.backend.model.Application;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -48,10 +49,10 @@ public class ApplicationRepository {
     }
 
     public record Filter(
-        Long id,
-        Long jobId,
-        Long candidateId,
-        Long recruiterId
+        Optional<Long> id,
+        Optional<Long> jobId,
+        Optional<Long> candidateId,
+        Optional<Long> recruiterId
     ) {}
 
     public List<Application> find(Filter filter) {
@@ -59,19 +60,19 @@ public class ApplicationRepository {
         List<String> conditions = new ArrayList<>();
         List<Object> args = new ArrayList<>();
 
-        if (filter.id() != null) {
+        if (filter.id().isPresent()) {
             conditions.add("id = ?");
             args.add(filter.id());
         }
-        if (filter.jobId() != null) {
+        if (filter.jobId().isPresent()) {
             conditions.add("job_id = ?");
             args.add(filter.jobId());
         }
-        if (filter.candidateId() != null) {
+        if (filter.candidateId().isPresent()) {
             conditions.add("candidate_id = ?");
             args.add(filter.candidateId());
         }
-        if (filter.recruiterId() != null) {
+        if (filter.recruiterId().isPresent()) {
             conditions.add(
                 "job_id IN (SELECT id FROM job WHERE recruiter_id = ?)"
             );

@@ -107,7 +107,7 @@ public class JobController {
             boolean savedJob = jobRepo.create(job);
 
             if (!savedJob) return ResponseEntity.status(
-                HttpStatus.SERVICE_UNAVAILABLE
+                HttpStatus.INTERNAL_SERVER_ERROR
             ).body(Map.of("message", "Failed to create job"));
 
             return ResponseEntity.status(HttpStatus.CREATED).body(

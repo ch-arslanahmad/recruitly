@@ -66,7 +66,7 @@ public class AuthController {
             }
 
             if (!(user.getRole() == oldUser.getRole())) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
                     Map.of("message", "Unauthorized role of user.")
                 );
             }

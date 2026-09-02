@@ -11,10 +11,9 @@ public class Application {
 
     public enum Status {
         APPLIED,
-        INTERVIEWING,
-        OFFERED,
-        REJECTED;
-
+        SHORTLISTED,
+        REJECTED,
+        HIRED;
         @JsonCreator
         public static Status fromValue(String value) {
             return Status.valueOf(value.toUpperCase());

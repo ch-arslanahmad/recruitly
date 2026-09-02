@@ -1,12 +1,16 @@
 package com.recruitly.backend.controllers;
 
 import com.recruitly.backend.model.Application;
+import com.recruitly.backend.model.Job;
 import com.recruitly.backend.repository.ApplicationRepository;
 import com.recruitly.backend.repository.ApplicationRepository.ApplicationWithCandidate;
 import com.recruitly.backend.repository.ApplicationRepository.ApplicationWithJob;
+import com.recruitly.backend.repository.ApplicationRepository.Filter;
 import com.recruitly.backend.repository.ApplicationRepository.JobApplicant;
+import com.recruitly.backend.repository.JobRepository;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -23,9 +27,14 @@ public class ApplicationController {
     );
 
     private final ApplicationRepository appRepo;
+    private final JobRepository jobRepo;
 
-    public ApplicationController(ApplicationRepository appRepo) {
+    public ApplicationController(
+        ApplicationRepository appRepo,
+        JobRepository jobRepo
+    ) {
         this.appRepo = appRepo;
+        this.jobRepo = jobRepo;
     }
 
     // POST /api/applications — apply to job (applicant)
@@ -34,16 +43,56 @@ public class ApplicationController {
         @AuthenticationPrincipal Long candidateID,
         @RequestBody Application app
     ) {
+        // fetch the job by ID
+        Optional<Job> job = jobRepo.findById(
+            Optional.of(app.getJobId()),
+            Optional.empty()
+        ); // fetch the job by ID
+
+        // error if job does not exist
+        if (job.isEmpty() || job == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        // error if job is closed
+        if (job.get().getStatus() == Job.Status.CLOSED) {
+            return ResponseEntity.badRequest().body("This job is closed");
+        }
+
         try {
             app.setCandidateId(candidateID);
+
+            boolean alreadyApplied = appRepo
+                .find(
+                    new Filter(
+                        Optional.empty(),
+                        Optional.of(job.get().getId()),
+                        Optional.empty(),
+                        Optional.empty()
+                    )
+                )
+                .stream()
+                .anyMatch(oldApp ->
+                    oldApp.getCandidateId().equals(candidateID)
+                ); // returns true if the candidate has already applied
+
+            if (alreadyApplied) {
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(
+                    "You have already applied to this job"
+                );
+            }
 
             boolean isCreated = appRepo.create(app);
 
             if (!isCreated) {
-                return ResponseEntity.badRequest().body("Failed to apply");
+                return ResponseEntity.status(
+                    HttpStatus.INTERNAL_SERVER_ERROR
+                ).body("Failed to apply");
             }
 
-            return ResponseEntity.ok("Applied successfully");
+            return ResponseEntity.status(HttpStatus.CREATED).body(
+                "Applied successfully"
+            );
         } catch (Exception e) {
             logger.error(
                 "Error applying to job for candidate: {}",
@@ -145,7 +194,7 @@ public class ApplicationController {
             boolean isUpdated = appRepo.update(id, recruiterId, body);
 
             if (!isUpdated) {
-                return ResponseEntity.badRequest().body(
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                     "Failed to update status"
                 );
             }
