@@ -191,6 +191,63 @@ public class ApplicationController {
                 return ResponseEntity.badRequest().body("Body is required");
             }
 
+            Application current = appRepo
+                .find(
+                    new Filter(
+                        Optional.of(id),
+                        Optional.empty(),
+                        Optional.empty(),
+                        Optional.empty()
+                    )
+                )
+                .stream()
+                .findFirst()
+                .orElse(null);
+
+            if (current == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    "Application not found"
+                );
+            }
+
+            if (!current.allowTransition(body.getStatus())) {
+                if (
+                    body.getStatus().toString() == "HIRED" ||
+                    body.getStatus().toString() == "REJECTED"
+                ) {
+                    return ResponseEntity.badRequest().body(
+                        "Cannot change status from " +
+                            current.getStatus() +
+                            " to " +
+                            body.getStatus() +
+                            ".\n" +
+                            body.getStatus() +
+                            " is the final status."
+                    );
+                }
+
+                if (
+                    current.getStatus().toString() == "APPLIED" &&
+                    body.getStatus().toString() == "HIRED"
+                ) {
+                    return ResponseEntity.badRequest().body(
+                        "Cannot change status from " +
+                            current.getStatus() +
+                            " to " +
+                            body.getStatus() +
+                            ".\n" +
+                            "Must go through the 'SHORTLISTED' first."
+                    );
+                }
+
+                return ResponseEntity.badRequest().body(
+                    "Cannot change status from " +
+                        current.getStatus() +
+                        " to " +
+                        body.getStatus()
+                );
+            }
+
             boolean isUpdated = appRepo.update(id, recruiterId, body);
 
             if (!isUpdated) {
