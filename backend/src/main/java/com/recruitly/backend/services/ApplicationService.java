@@ -114,8 +114,8 @@ public class ApplicationService {
 
         if (!current.allowTransition(body.getStatus())) {
             if (
-                body.getStatus().toString() == "HIRED" ||
-                body.getStatus().toString() == "REJECTED"
+                body.getStatus().toString().equals("HIRED") ||
+                body.getStatus().toString().equals("REJECTED")
             ) {
                 throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
@@ -130,8 +130,8 @@ public class ApplicationService {
             }
 
             if (
-                current.getStatus().toString() == "APPLIED" &&
-                body.getStatus().toString() == "HIRED"
+                current.getStatus().toString().equals("APPLIED") &&
+                body.getStatus().toString().equals("HIRED")
             ) {
                 throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,

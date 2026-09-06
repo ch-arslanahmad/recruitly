@@ -263,7 +263,7 @@ public class JobRepository {
 
     public Map<String, Object> stats(long recruiterId) {
         String query =
-            "SELECT (SELECT COUNT(*) FROM job WHERE recruiter_id = ?) AS total_jobs, (SELECT COUNT(*) FROM application WHERE job_id IN (SELECT id FROM job WHERE recruiter_id = ?)) AS total_applications, (SELECT COUNT(*) FROM job WHERE recruiter_id = ? AND created_at >= DATE('now', '-7 days')) AS jobs_last_7_days, (SELECT COUNT(*) FROM application WHERE status = 'interviewing' AND job_id IN (SELECT id FROM job WHERE recruiter_id = ?)) AS total_interviews";
+            "SELECT (SELECT COUNT(*) FROM job WHERE recruiter_id = ?) AS total_jobs, (SELECT COUNT(*) FROM application WHERE job_id IN (SELECT id FROM job WHERE recruiter_id = ?)) AS total_applications, (SELECT COUNT(*) FROM job WHERE recruiter_id = ? AND created_at >= DATE('now', '-7 days')) AS jobs_last_7_days, (SELECT COUNT(*) FROM application WHERE status = 'shortlisted' AND job_id IN (SELECT id FROM job WHERE recruiter_id = ?)) AS total_interviews";
 
         Map<String, Object> result = jdbc.queryForMap(
             query,

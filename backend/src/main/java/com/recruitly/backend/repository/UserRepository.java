@@ -67,7 +67,7 @@ public class UserRepository {
             User user = jdbc.queryForObject(sql, new UserMapper(), username);
             return Optional.of(user);
         } catch (Exception e) {
-            log.debug("User not found by username: {}", username);
+            log.warn("User not found by username: {}", username);
             return Optional.empty();
         }
     }

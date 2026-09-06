@@ -39,7 +39,7 @@ public class JWTUtil {
                 .signWith(getSigningKey(), Jwts.SIG.HS256)
                 .compact();
         } catch (Exception e) {
-            log.debug("Error generating token: " + e.getMessage());
+            log.error("Error generating token: " + e.getMessage());
             throw new RuntimeException("Error generating token", e);
         }
     }
