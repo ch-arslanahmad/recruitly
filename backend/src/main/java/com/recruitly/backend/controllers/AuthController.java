@@ -1,15 +1,14 @@
 package com.recruitly.backend.controllers;
 
-import com.recruitly.backend.config.JWTUtil;
 import com.recruitly.backend.model.User;
-import com.recruitly.backend.repository.UserRepository;
+import com.recruitly.backend.services.AuthService;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 // jwt
 
@@ -21,73 +20,34 @@ public class AuthController {
         AuthController.class
     );
 
-    private final JWTUtil jwtUtil;
+    private final AuthService authService;
 
-    private final UserRepository userRepo;
-    BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(); // for password hashing
-
-    public AuthController(UserRepository userRepo, JWTUtil jwtUtil) {
-        this.userRepo = userRepo;
-        this.jwtUtil = jwtUtil;
+    public AuthController(AuthService authService) {
+        this.authService = authService;
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody User user) {
         try {
-            User oldUser = userRepo
-                .findByUsername(user.getUsername())
-                .orElse(null);
-
-            // not found check
-            if (oldUser == null) {
-                log.warn(
-                    "User: " +
-                        user.getUsername() +
-                        "failed to log in due to user not found!"
-                );
-
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                    Map.of("message", "User not found, you must register first")
-                );
-            }
-
-            // password check
-            if (!encoder.matches(user.getPassword(), oldUser.getPassword())) {
-                log.warn(
-                    "User: " +
-                        user.getUsername() +
-                        "(" +
-                        user.getId() +
-                        ") failed to log in due to incorrect password!"
-                );
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-                    Map.of("message", "Incorrect password")
-                );
-            }
-
-            if (!(user.getRole() == oldUser.getRole())) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
-                    Map.of("message", "Unauthorized role of user.")
-                );
-            }
-
-            // generate token
-            String token = jwtUtil.generateToken(
-                oldUser.getId(),
-                oldUser.getRole().toString()
-            );
-
+            String token = authService.login(user);
             log.info(
                 "User: " +
-                    oldUser.getUsername() +
+                    user.getUsername() +
                     "(" +
-                    oldUser.getId() +
+                    user.getId() +
                     ") logged in successfully!"
             );
 
             return ResponseEntity.ok(
-                Map.of("token", token, "user", oldUser.getUserMap())
+                Map.of("token", token, "user", user.getUserMap())
             );
+        } catch (ResponseStatusException e) {
+            log.error(
+                "Login failed for user: {}, Error: {}",
+                user.getUsername(),
+                e.getReason()
+            );
+            throw e;
         } catch (Exception e) {
             log.error("Login failed for user: {}", user.getUsername(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
@@ -99,28 +59,20 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody User user) {
         try {
-            if (userRepo.findByUsername(user.getUsername()).isPresent()) {
-                return ResponseEntity.status(HttpStatus.CONFLICT).body(
-                    Map.of("message", "Username already exists")
-                );
-            }
-
-            user.setPassword(encoder.encode(user.getPassword()));
-
-            user.setId(userRepo.create(user));
-
-            String token = jwtUtil.generateToken(
-                user.getId(),
-                user.getRole().toString()
-            );
-
-            log.info(
-                "User: " + user.getUsername() + " registered successfully!"
-            );
+            Map<Long, String> result = authService.register(user);
+            Long userId = result.keySet().iterator().next();
+            String token = result.get(userId);
 
             return ResponseEntity.status(HttpStatus.CREATED).body(
                 Map.of("token", token, "user", user.getUserMap())
             );
+        } catch (ResponseStatusException e) {
+            log.error(
+                "Registration failed for user: {}, Error: {}",
+                user.getUsername(),
+                e.getReason()
+            );
+            throw e;
         } catch (Exception e) {
             log.error(
                 "Registration failed for user: {}",

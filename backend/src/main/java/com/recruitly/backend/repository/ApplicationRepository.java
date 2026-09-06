@@ -62,21 +62,21 @@ public class ApplicationRepository {
 
         if (filter.id().isPresent()) {
             conditions.add("id = ?");
-            args.add(filter.id());
+            args.add(filter.id().get());
         }
         if (filter.jobId().isPresent()) {
             conditions.add("job_id = ?");
-            args.add(filter.jobId());
+            args.add(filter.jobId().get());
         }
         if (filter.candidateId().isPresent()) {
             conditions.add("candidate_id = ?");
-            args.add(filter.candidateId());
+            args.add(filter.candidateId().get());
         }
         if (filter.recruiterId().isPresent()) {
             conditions.add(
                 "job_id IN (SELECT id FROM job WHERE recruiter_id = ?)"
             );
-            args.add(filter.recruiterId());
+            args.add(filter.recruiterId().get());
         }
 
         if (!conditions.isEmpty()) {
