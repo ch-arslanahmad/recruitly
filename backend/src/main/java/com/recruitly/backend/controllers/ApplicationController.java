@@ -1,22 +1,19 @@
 package com.recruitly.backend.controllers;
 
 import com.recruitly.backend.model.Application;
-import com.recruitly.backend.model.Job;
-import com.recruitly.backend.repository.ApplicationRepository;
 import com.recruitly.backend.repository.ApplicationRepository.ApplicationWithCandidate;
 import com.recruitly.backend.repository.ApplicationRepository.ApplicationWithJob;
-import com.recruitly.backend.repository.ApplicationRepository.Filter;
 import com.recruitly.backend.repository.ApplicationRepository.JobApplicant;
-import com.recruitly.backend.repository.JobRepository;
+import com.recruitly.backend.services.ApplicationService;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api/applications")
@@ -26,15 +23,10 @@ public class ApplicationController {
         ApplicationController.class
     );
 
-    private final ApplicationRepository appRepo;
-    private final JobRepository jobRepo;
+    private final ApplicationService appService;
 
-    public ApplicationController(
-        ApplicationRepository appRepo,
-        JobRepository jobRepo
-    ) {
-        this.appRepo = appRepo;
-        this.jobRepo = jobRepo;
+    public ApplicationController(ApplicationService appService) {
+        this.appService = appService;
     }
 
     // POST /api/applications — apply to job (applicant)
@@ -43,56 +35,17 @@ public class ApplicationController {
         @AuthenticationPrincipal Long candidateID,
         @RequestBody Application app
     ) {
-        // fetch the job by ID
-        Optional<Job> job = jobRepo.findById(
-            Optional.of(app.getJobId()),
-            Optional.empty()
-        ); // fetch the job by ID
-
-        // error if job does not exist
-        if (job.isEmpty() || job == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        // error if job is closed
-        if (job.get().getStatus() == Job.Status.CLOSED) {
-            return ResponseEntity.badRequest().body("This job is closed");
-        }
-
         try {
-            app.setCandidateId(candidateID);
-
-            boolean alreadyApplied = appRepo
-                .find(
-                    new Filter(
-                        Optional.empty(),
-                        Optional.of(job.get().getId()),
-                        Optional.empty(),
-                        Optional.empty()
-                    )
-                )
-                .stream()
-                .anyMatch(oldApp ->
-                    oldApp.getCandidateId().equals(candidateID)
-                ); // returns true if the candidate has already applied
-
-            if (alreadyApplied) {
-                return ResponseEntity.status(HttpStatus.CONFLICT).body(
-                    "You have already applied to this job"
-                );
-            }
-
-            boolean isCreated = appRepo.create(app);
-
-            if (!isCreated) {
-                return ResponseEntity.status(
-                    HttpStatus.INTERNAL_SERVER_ERROR
-                ).body("Failed to apply");
-            }
-
-            return ResponseEntity.status(HttpStatus.CREATED).body(
-                "Applied successfully"
+            String message = appService.apply(candidateID, app);
+            return ResponseEntity.status(HttpStatus.CREATED).body(message);
+        } catch (ResponseStatusException e) {
+            logger.warn(
+                "Application error for candidate: {} — {} {}",
+                candidateID,
+                e.getStatusCode(),
+                e.getReason()
             );
+            throw e;
         } catch (Exception e) {
             logger.error(
                 "Error applying to job for candidate: {}",
@@ -111,11 +64,10 @@ public class ApplicationController {
         @AuthenticationPrincipal Long candidateId
     ) {
         try {
-            List<ApplicationWithJob> app = appRepo.findByCandidateWithJobs(
+            List<ApplicationWithJob> apps = appService.findByCandidateWithJobs(
                 candidateId
             );
-
-            return ResponseEntity.ok(app);
+            return ResponseEntity.ok(apps);
         } catch (Exception e) {
             logger.error(
                 "Error fetching applications for candidate: {}",
@@ -134,7 +86,7 @@ public class ApplicationController {
         @AuthenticationPrincipal Long recruiterID
     ) {
         try {
-            List<ApplicationWithCandidate> apps = appRepo.findByRecruiter(
+            List<ApplicationWithCandidate> apps = appService.findByRecruiter(
                 recruiterID
             );
 
@@ -158,7 +110,7 @@ public class ApplicationController {
         @PathVariable Long JobId
     ) {
         try {
-            List<JobApplicant> apps = appRepo.findJobApplicants(
+            List<JobApplicant> apps = appService.findJobApplicants(
                 JobId,
                 recruiterId
             );
@@ -187,76 +139,16 @@ public class ApplicationController {
         @PathVariable Long id
     ) {
         try {
-            if (body == null) {
-                return ResponseEntity.badRequest().body("Body is required");
-            }
-
-            Application current = appRepo
-                .find(
-                    new Filter(
-                        Optional.of(id),
-                        Optional.empty(),
-                        Optional.empty(),
-                        Optional.empty()
-                    )
-                )
-                .stream()
-                .findFirst()
-                .orElse(null);
-
-            if (current == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                    "Application not found"
-                );
-            }
-
-            if (!current.allowTransition(body.getStatus())) {
-                if (
-                    body.getStatus().toString() == "HIRED" ||
-                    body.getStatus().toString() == "REJECTED"
-                ) {
-                    return ResponseEntity.badRequest().body(
-                        "Cannot change status from " +
-                            current.getStatus() +
-                            " to " +
-                            body.getStatus() +
-                            ".\n" +
-                            body.getStatus() +
-                            " is the final status."
-                    );
-                }
-
-                if (
-                    current.getStatus().toString() == "APPLIED" &&
-                    body.getStatus().toString() == "HIRED"
-                ) {
-                    return ResponseEntity.badRequest().body(
-                        "Cannot change status from " +
-                            current.getStatus() +
-                            " to " +
-                            body.getStatus() +
-                            ".\n" +
-                            "Must go through the 'SHORTLISTED' first."
-                    );
-                }
-
-                return ResponseEntity.badRequest().body(
-                    "Cannot change status from " +
-                        current.getStatus() +
-                        " to " +
-                        body.getStatus()
-                );
-            }
-
-            boolean isUpdated = appRepo.update(id, recruiterId, body);
-
-            if (!isUpdated) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                    "Failed to update status"
-                );
-            }
-
-            return ResponseEntity.ok("Status updated successfully");
+            String message = appService.update(id, recruiterId, body);
+            return ResponseEntity.ok(message);
+        } catch (ResponseStatusException e) {
+            logger.warn(
+                "Application error for candidate: {} — {} {}",
+                id,
+                e.getStatusCode(),
+                e.getReason()
+            );
+            throw e;
         } catch (Exception e) {
             logger.error(
                 "Error updating application: {} by recruiter: {}",
