@@ -109,4 +109,69 @@ public class ApplicationServiceTest {
 
         assertAll("Applied successfully", () -> appService.apply(1L, app));
     }
+
+    @Test
+    void update_shouldReturnSuccess() {
+        Application app = new Application();
+        app.setId(1L);
+        app.setStatus(Application.Status.SHORTLISTED); // update status
+
+        Application currentApp = new Application();
+        currentApp.setId(1L);
+        currentApp.setStatus(Application.Status.APPLIED); // current status
+
+        // find application
+        when(appRepo.find(any())).thenReturn(List.of(currentApp));
+        when(appRepo.update(any(), any(), any())).thenReturn(true);
+        assertAll("Updated successfully", () -> appService.update(1L, 1L, app));
+    }
+
+    @Test
+    void update_shouldThrow_whenBodyNull() {
+        Application app = null;
+        assertThrows(ResponseStatusException.class, () ->
+            appService.update(1L, 1L, app)
+        );
+    }
+
+    @Test
+    void update_shouldThrow_whenApplicationNotFound() {
+        Application app = new Application();
+
+        when(appRepo.find(any())).thenReturn(List.of());
+        assertThrows(ResponseStatusException.class, () ->
+            appService.update(1L, 1L, app)
+        );
+    }
+
+    @Test
+    void update_shouldThrow_whenInvalidTransition() {
+        Application app = new Application();
+        app.setStatus(Application.Status.REJECTED);
+
+        Application currentApp = new Application();
+        currentApp.setStatus(Application.Status.APPLIED);
+
+        when(appRepo.find(any())).thenReturn(List.of(currentApp));
+        assertThrows(ResponseStatusException.class, () ->
+            appService.update(1L, 1L, app)
+        );
+    }
+
+    @Test
+    void update_shouldThrow_whenUpdateFails() {
+        Application app = new Application();
+        app.setId(1L);
+        app.setStatus(Application.Status.APPLIED);
+
+        Application currentApp = new Application();
+        currentApp.setId(1L);
+        currentApp.setStatus(Application.Status.APPLIED);
+
+        when(appRepo.find(any())).thenReturn(List.of(currentApp));
+        when(appRepo.update(any(), any(), any())).thenReturn(false);
+        assertThrows(ResponseStatusException.class, () ->
+            appService.update(1L, 1L, app)
+        );
+    }
 }
