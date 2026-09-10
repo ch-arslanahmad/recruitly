@@ -19,11 +19,16 @@ public class AuthService {
     private final JWTUtil jwtUtil;
 
     private final UserRepository userRepo;
-    BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(); // for password hashing
+    private final BCryptPasswordEncoder encoder; // for password hashing
 
-    public AuthService(UserRepository userRepo, JWTUtil jwtUtil) {
+    public AuthService(
+        UserRepository userRepo,
+        JWTUtil jwtUtil,
+        BCryptPasswordEncoder encoder
+    ) {
         this.userRepo = userRepo;
         this.jwtUtil = jwtUtil;
+        this.encoder = encoder;
     }
 
     public String login(User user) {
