@@ -2,6 +2,7 @@ package com.recruitly.backend.controllers;
 
 import com.recruitly.backend.model.User;
 import com.recruitly.backend.services.AuthService;
+import jakarta.validation.Valid;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +28,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody User user) {
+    public ResponseEntity<?> login(@Valid @RequestBody User user) {
         try {
             String token = authService.login(user);
             log.info(
@@ -57,7 +58,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody User user) {
+    public ResponseEntity<?> register(@Valid @RequestBody User user) {
         try {
             Map<Long, String> result = authService.register(user);
             Long userId = result.keySet().iterator().next();

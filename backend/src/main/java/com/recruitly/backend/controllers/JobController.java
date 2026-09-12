@@ -2,6 +2,7 @@ package com.recruitly.backend.controllers;
 
 import com.recruitly.backend.model.Job;
 import com.recruitly.backend.repository.JobRepository;
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -100,10 +101,10 @@ public class JobController {
     @PostMapping
     public ResponseEntity<?> create(
         @AuthenticationPrincipal Long recruiterId,
-        @RequestBody Job job
+        @Valid @RequestBody Job job
     ) {
         try {
-            job.setRecruiterId(recruiterId); // so job linked with recruiter
+            job.setRecruiterId(recruiterId);
             boolean savedJob = jobRepo.create(job);
 
             if (!savedJob) return ResponseEntity.status(
@@ -126,7 +127,7 @@ public class JobController {
     public ResponseEntity<?> update(
         @PathVariable Long id,
         @AuthenticationPrincipal Long recruiterId,
-        @RequestBody Job job
+        @Valid @RequestBody Job job
     ) {
         try {
             boolean updatedJob = jobRepo.update(id, recruiterId, job);

@@ -3,6 +3,9 @@ package com.recruitly.backend.model;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
@@ -42,8 +45,15 @@ public class Job {
 
     private Long id;
     private Long recruiterId;
+
+    @NotBlank(message = "Company is required")
     private String company;
+
+    @NotBlank(message = "Title is required")
+    @Size(min = 5, max = 50)
     private String title;
+
+    @NotBlank(message = "Status is required")
     private Status status;
 
     @JsonProperty("about_role")
@@ -52,7 +62,12 @@ public class Job {
     private String requirements;
     private String responsibilities;
     private String location;
+
+    @NotNull(message = "Salary is required")
     private Integer salary; // in USD
+
+    @NotNull(message = "Type is required")
     private Type type;
+
     private String createdAt;
 }
