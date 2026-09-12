@@ -10,13 +10,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class ApplicationTest {
 
     @Test
-    void allowTransition_shouldReturnTrue_whenAppliedToHired() {
+    void allowTransition_shouldReturnFalse_whenAppliedToHired() {
         Application app = new Application();
         app.setStatus(Application.Status.APPLIED);
 
-        assertTrue(app.allowTransition(Application.Status.HIRED));
+        assertFalse(app.allowTransition(Application.Status.HIRED));
     }
-
 
     @Test
     void allowTransition_shouldReturnTrue_whenAppliedToRejected() {
@@ -44,7 +43,9 @@ class ApplicationTest {
 
     @Test
     void allowTransition_shouldReturnFalse_whenRejectedToAnything() {
-        
+        Application app = new Application();
+        app.setStatus(Application.Status.REJECTED);
+        assertFalse(app.allowTransition(Application.Status.APPLIED));
     }
 
     @Test
