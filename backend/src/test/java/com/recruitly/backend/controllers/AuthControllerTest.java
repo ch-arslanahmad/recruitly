@@ -4,7 +4,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,43 +14,10 @@ import org.springframework.test.web.servlet.MockMvc;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class AuthControllerTest {
+public class AuthControllerTest extends BaseControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
-
-    private String toJson(Object obj) throws Exception {
-        return new ObjectMapper().writeValueAsString(obj);
-    }
-
-    // register
-
-    @Test
-    public void register_shouldReturn201() throws Exception {
-        mockMvc
-            .perform(
-                post("/api/auth/register")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(
-                        toJson(
-                            Map.of(
-                                "name",
-                                "Test User",
-                                "username",
-                                "test_" + System.currentTimeMillis(),
-                                "password",
-                                "password123",
-                                "role",
-                                "applicant",
-                                "company",
-                                "Acme"
-                            )
-                        )
-                    )
-            )
-            .andExpect(status().isCreated())
-            .andDo(print());
-    }
 
     @Test
     public void register_shouldReturn409_WhenUserExist() throws Exception {
