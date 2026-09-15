@@ -9,6 +9,8 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -26,18 +28,28 @@ public class JobRepository {
         job.setStatus(Job.Status.OPEN);
         job.setType(Job.Type.FULL_TIME);
 
-        jdbc.update(
-            "INSERT INTO job (recruiter_id, title, status, about_role, requirements, responsibilities, location, salary, type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            job.getRecruiterId(),
-            job.getTitle(),
-            job.getStatus().toString().toLowerCase(),
-            job.getAboutRole(),
-            job.getRequirements(),
-            job.getResponsibilities(),
-            job.getLocation(),
-            job.getSalary(),
-            job.getType().name().toLowerCase().replace("_", "-")
-        );
+        String sql =
+            "INSERT INTO job (recruiter_id, title, status, about_role, requirements, responsibilities, location, salary, type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbc.update(connection -> {
+            var ps = connection.prepareStatement(sql, new String[] { "id" }); // the last argument is the column name (data-type) for the generated key
+            ps.setLong(1, job.getRecruiterId());
+            ps.setString(2, job.getTitle());
+            ps.setString(3, job.getStatus().toString().toLowerCase());
+            ps.setString(4, job.getAboutRole());
+            ps.setString(5, job.getRequirements());
+            ps.setString(6, job.getResponsibilities());
+            ps.setString(7, job.getLocation());
+            ps.setInt(8, job.getSalary());
+            ps.setString(
+                9,
+                job.getType().name().toLowerCase().replace("_", "-")
+            );
+            return ps;
+        }, keyHolder);
+
+        job.setId(keyHolder.getKey().longValue());
         return true;
     }
 
