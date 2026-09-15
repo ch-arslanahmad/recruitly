@@ -17,7 +17,9 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/jobs")
 public class JobController {
 
-    public static final Logger logger = LoggerFactory.getLogger(JobController.class);
+    public static final Logger logger = LoggerFactory.getLogger(
+        JobController.class
+    );
 
     private final JobRepository jobRepo;
 
@@ -53,7 +55,11 @@ public class JobController {
 
             return ResponseEntity.ok(Map.of("jobs", jobs));
         } catch (Exception e) {
-            logger.error("Error fetching recruiter jobs for user: {}", userID, e);
+            logger.error(
+                "Error fetching recruiter jobs for user: {}",
+                userID,
+                e
+            );
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                 Map.of("message", "Failed to fetch jobs")
             );
@@ -62,7 +68,6 @@ public class JobController {
 
     // GET /api/jobs/stats — recruiter dashboard stats
     @GetMapping("/stats")
-    
     public ResponseEntity<?> stats(@AuthenticationPrincipal Long userID) {
         try {
             Map<String, Object> repo = jobRepo.stats(userID);
@@ -112,10 +117,14 @@ public class JobController {
             ).body(Map.of("message", "Failed to create job"));
 
             return ResponseEntity.status(HttpStatus.CREATED).body(
-                Map.of("message", "Job created successfully")
+                Map.of("message", "Job created successfully", "id", job.getId())
             );
         } catch (Exception e) {
-            logger.error("Error creating job for recruiter: {}", recruiterId, e);
+            logger.error(
+                "Error creating job for recruiter: {}",
+                recruiterId,
+                e
+            );
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                 Map.of("message", "Failed to create job")
             );
@@ -130,14 +139,37 @@ public class JobController {
         @Valid @RequestBody Job job
     ) {
         try {
-            boolean updatedJob = jobRepo.update(id, recruiterId, job);
-            if (!updatedJob) return ResponseEntity.status(
+            Optional<Job> oldJob = jobRepo.findById(
+                Optional.of(id),
+                Optional.empty()
+            );
+
+            if (oldJob.isEmpty()) return ResponseEntity.status(
                 HttpStatus.NOT_FOUND
+            ).body(Map.of("message", "Job does not exist"));
+
+            if (
+                !oldJob.get().getRecruiterId().equals(recruiterId)
+            ) return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
+                Map.of("message", "You are not authorized to update this job")
+            );
+
+            boolean isUpdated = jobRepo.update(id, recruiterId, job);
+
+            if (!isUpdated) return ResponseEntity.status(
+                HttpStatus.INTERNAL_SERVER_ERROR
             ).body(Map.of("message", "Failed to update job"));
 
-            return ResponseEntity.ok(Map.of("message", "Job updated successfully"));
+            return ResponseEntity.ok(
+                Map.of("message", "Job updated successfully")
+            );
         } catch (Exception e) {
-            logger.error("Error updating job: {} by recruiter: {}", id, recruiterId, e);
+            logger.error(
+                "Error updating job: {} by recruiter: {}",
+                id,
+                recruiterId,
+                e
+            );
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                 Map.of("message", "Failed to update job")
             );
@@ -161,7 +193,12 @@ public class JobController {
                 Map.of("message", "Job deleted successfully")
             );
         } catch (Exception e) {
-            logger.error("Error deleting job: {} by recruiter: {}", id, recruiterId, e);
+            logger.error(
+                "Error deleting job: {} by recruiter: {}",
+                id,
+                recruiterId,
+                e
+            );
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                 Map.of("message", "Failed to delete job")
             );
