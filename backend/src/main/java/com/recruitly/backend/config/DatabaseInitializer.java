@@ -1,11 +1,9 @@
 package com.recruitly.backend.config;
 
-// db imports
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.Statement;
 import javax.sql.DataSource;
-// springframework imports
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.io.ClassPathResource;
@@ -14,26 +12,45 @@ import org.springframework.stereotype.Component;
 @Component
 public class DatabaseInitializer implements ApplicationRunner {
 
-    private final DataSource dataSource; // instance of DataSource to manage database connections
+    private final DataSource dataSource;
 
-    // Constructor to inject the DataSource dependency (DI)
     public DatabaseInitializer(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        String schema = new ClassPathResource("schema.sql").getContentAsString(
-            StandardCharsets.UTF_8
-        );
+        // schema.sql has multiple CREATE TABLE statements (split by ;).
+        // Trigger files have END; inside them — execute whole file as-is.
+        String[] scripts = {
+            "schema.sql",
+            "triggers/verify_recruiter.sql",
+            "triggers/verify_applicant.sql",
+        };
+
         try (
             Connection conn = dataSource.getConnection();
             Statement stmt = conn.createStatement()
         ) {
-            String sql = schema.replaceAll("(?m)^\\s*--.*$", "").trim();
-            if (!sql.isEmpty()) {
-                stmt.executeUpdate(sql);
+            for (String script : scripts) {
+                String sql = new ClassPathResource(script)
+                    .getContentAsString(StandardCharsets.UTF_8)
+                    .replaceAll("(?m)^\\s*--.*$", "")
+                    .trim();
+                if (sql.isEmpty()) {
+                    continue;
+                }
+                if (script.equals("schema.sql")) {
+                    for (String statement : sql.split(";")) {
+                        String trimmed = statement.trim();
+                        if (!trimmed.isEmpty()) {
+                            stmt.executeUpdate(trimmed);
+                        }
+                    }
+                } else {
+                    stmt.executeUpdate(sql);
+                }
             }
-        } // for each operation
+        }
     }
 }

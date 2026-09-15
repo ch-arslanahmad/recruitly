@@ -1,5 +1,6 @@
 package com.recruitly.backend.config;
 
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -61,6 +62,15 @@ public class SecurityConfig {
                     .hasRole("RECRUITER") // applicants & applications (recruiter)
                     .anyRequest()
                     .authenticated()
+            )
+            .httpBasic(auth ->
+                auth.authenticationEntryPoint(
+                    (request, response, authException) ->
+                        response.sendError(
+                            HttpServletResponse.SC_UNAUTHORIZED,
+                            "Unauthorized"
+                        )
+                )
             )
             // applying the JWT filter before the UsernamePasswordAuthenticationFilter
             .addFilterBefore(

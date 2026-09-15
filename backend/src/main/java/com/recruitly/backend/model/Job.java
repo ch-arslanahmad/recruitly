@@ -53,7 +53,7 @@ public class Job {
     @Size(min = 5, max = 50)
     private String title;
 
-    @NotBlank(message = "Status is required")
+    @NotNull(message = "Status is required")
     private Status status;
 
     @JsonProperty("about_role")
