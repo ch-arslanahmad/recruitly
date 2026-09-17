@@ -1,8 +1,10 @@
 package com.recruitly.backend.services;
 
 import com.recruitly.backend.model.Job;
+import com.recruitly.backend.repository.JobRepository;
 import com.recruitly.backend.repository.UserRepository;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -12,8 +14,11 @@ public class SavedJobService {
 
     private final UserRepository userRepo;
 
-    public SavedJobService(UserRepository userRepo) {
+    private final JobRepository jobRepo;
+
+    public SavedJobService(UserRepository userRepo, JobRepository jobRepo) {
         this.userRepo = userRepo;
+        this.jobRepo = jobRepo;
     }
 
     public List<Job> listSaved(Long userId) {
@@ -21,6 +26,16 @@ public class SavedJobService {
     }
 
     public String saveJob(Long userId, Long jobId) {
+        Optional<Job> job = jobRepo.findById(
+            Optional.of(jobId),
+            Optional.empty()
+        );
+
+        if (job.isEmpty()) throw new ResponseStatusException(
+            HttpStatus.NOT_FOUND,
+            "Job not found"
+        );
+
         boolean alreadySaved = userRepo.isSavedJob(userId, jobId);
 
         if (alreadySaved) throw new ResponseStatusException(
