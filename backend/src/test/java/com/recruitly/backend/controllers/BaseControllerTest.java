@@ -107,4 +107,22 @@ public class BaseControllerTest {
 
         return objectMapper.readTree(response).get("id").asLong();
     }
+
+    protected Long applyToJob(String applicantToken, Long jobId)
+        throws Exception {
+        String response = mockMvc
+            .perform(
+                post("/api/applications")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header("Authorization", "Bearer " + applicantToken)
+                    .content(
+                        toJson(Map.of("job_id", jobId, "status", "applied"))
+                    )
+            )
+            .andExpect(status().isCreated())
+            .andReturn()
+            .getResponse()
+            .getContentAsString();
+        return objectMapper.readTree(response).get("id").asLong();
+    }
 }
