@@ -30,6 +30,13 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth ->
                 auth
+                    .requestMatchers(
+                        "/v3/api-docs/**",
+                        "/v3/api-docs.yaml",
+                        "/swagger-ui/**",
+                        "/swagger-ui.html"
+                    )
+                    .permitAll()
                     .requestMatchers("/", "/health", "/api/auth/**") // auth & public endpoints
                     .permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/jobs") // browse jobs (public)
