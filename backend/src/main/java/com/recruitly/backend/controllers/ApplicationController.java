@@ -35,8 +35,9 @@ public class ApplicationController {
             @AuthenticationPrincipal Long candidateID,
             @Valid @RequestBody Application app) {
         try {
-            String message = appService.apply(candidateID, app);
-            return ResponseEntity.status(HttpStatus.CREATED).body(message);
+            Long appId = appService.apply(candidateID, app);
+            return ResponseEntity.status(HttpStatus.CREATED).body(
+                    Map.of("message", "Applied successfully", "id", appId));
         } catch (ResponseStatusException e) {
             logger.warn(
                     "Application error for candidate: {} — {} {}",

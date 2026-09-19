@@ -136,7 +136,7 @@ public class JobController {
     public ResponseEntity<?> update(
         @PathVariable Long id,
         @AuthenticationPrincipal Long recruiterId,
-        @Valid @RequestBody Job job
+        @RequestBody Job job
     ) {
         try {
             Optional<Job> oldJob = jobRepo.findById(

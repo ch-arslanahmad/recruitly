@@ -28,7 +28,7 @@ public class ApplicationService {
         this.appRepo = appRepo;
     }
 
-    public String apply(Long candidateID, Application app) {
+    public Long apply(Long candidateID, Application app) {
         // fetch the job by ID
         Optional<Job> job = jobRepo.findById(
             Optional.of(app.getJobId()),
@@ -81,7 +81,7 @@ public class ApplicationService {
             );
         }
 
-        return "Applied successfully";
+        return app.getId();
     }
 
     public String update(Long id, Long recruiterId, Application body) {

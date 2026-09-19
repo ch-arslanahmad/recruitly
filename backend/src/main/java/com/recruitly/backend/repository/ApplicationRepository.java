@@ -8,6 +8,8 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -29,12 +31,19 @@ public class ApplicationRepository {
         String sql =
             "INSERT INTO application (job_id, candidate_id, status) VALUES (?, ?, ?)";
         try {
-            jdbc.update(
-                sql,
-                app.getJobId(),
-                app.getCandidateId(),
-                app.getStatus().toString().toLowerCase()
-            );
+            KeyHolder keyHolder = new GeneratedKeyHolder();
+
+            jdbc.update(connection -> {
+                var ps = connection.prepareStatement(sql, new String[] {
+                    "id",
+                });
+                ps.setLong(1, app.getJobId());
+                ps.setLong(2, app.getCandidateId());
+                ps.setString(3, app.getStatus().toString().toLowerCase());
+                return ps; // return the prepared statement
+            }, keyHolder);
+
+            app.setId(keyHolder.getKey().longValue());
             return true;
         } catch (Exception e) {
             log.error(
