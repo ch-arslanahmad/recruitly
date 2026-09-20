@@ -7,10 +7,12 @@ import java.util.List;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.server.ResponseStatusException;
 
 @Repository
 public class ApplicationRepository {
@@ -45,6 +47,16 @@ public class ApplicationRepository {
 
             app.setId(keyHolder.getKey().longValue());
             return true;
+        } catch (DuplicateKeyException e) {
+            log.warn(
+                "Duplicate application for job {} and candidate {}",
+                app.getJobId(),
+                app.getCandidateId()
+            );
+            throw new ResponseStatusException(
+                org.springframework.http.HttpStatus.CONFLICT,
+                "You have already applied to this job"
+            );
         } catch (Exception e) {
             log.error(
                 "Error creating application for job {} candidate {}: {}",
@@ -53,18 +65,17 @@ public class ApplicationRepository {
                 e.getMessage(),
                 e
             );
-            return false;
+            throw e;
         }
     }
 
     public record Filter(
         Optional<Long> id,
         Optional<Long> jobId,
-        Optional<Long> candidateId,
-        Optional<Long> recruiterId
+        Optional<Long> candidateId
     ) {}
 
-    public List<Application> find(Filter filter) {
+    public List<Application> find(Long recruiterId, Filter filter) {
         String sql = "SELECT * FROM application WHERE 1=1";
         List<String> conditions = new ArrayList<>();
         List<Object> args = new ArrayList<>();
@@ -81,11 +92,11 @@ public class ApplicationRepository {
             conditions.add("candidate_id = ?");
             args.add(filter.candidateId().get());
         }
-        if (filter.recruiterId().isPresent()) {
+        if (recruiterId != null) {
             conditions.add(
                 "job_id IN (SELECT id FROM job WHERE recruiter_id = ?)"
             );
-            args.add(filter.recruiterId().get());
+            args.add(recruiterId);
         }
 
         if (!conditions.isEmpty()) {

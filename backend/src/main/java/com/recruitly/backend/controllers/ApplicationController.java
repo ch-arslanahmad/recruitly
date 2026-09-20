@@ -8,20 +8,15 @@ import com.recruitly.backend.services.ApplicationService;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api/applications")
 public class ApplicationController {
 
-    public static final Logger logger = LoggerFactory.getLogger(
-            ApplicationController.class);
 
     private final ApplicationService appService;
 
@@ -32,114 +27,58 @@ public class ApplicationController {
     // POST /api/applications — apply to job (applicant)
     @PostMapping
     public ResponseEntity<?> apply(
-            @AuthenticationPrincipal Long candidateID,
-            @Valid @RequestBody Application app) {
-        try {
-            Long appId = appService.apply(candidateID, app);
-            return ResponseEntity.status(HttpStatus.CREATED).body(
-                    Map.of("message", "Applied successfully", "id", appId));
-        } catch (ResponseStatusException e) {
-            logger.warn(
-                    "Application error for candidate: {} — {} {}",
-                    candidateID,
-                    e.getStatusCode(),
-                    e.getReason());
-            throw e;
-        } catch (Exception e) {
-            logger.error(
-                    "Error applying to job for candidate: {}",
-                    candidateID,
-                    e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-                    "Failed to apply");
-        }
+        @AuthenticationPrincipal Long candidateID,
+        @Valid @RequestBody Application app
+    ) {
+        Long appId = appService.apply(candidateID, app);
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+            Map.of("message", "Applied successfully", "id", appId)
+        );
     }
 
     // GET /api/applications/my — applicant's own applications
     @GetMapping("/my")
-    public ResponseEntity<?> myApplications(
-            @AuthenticationPrincipal Long candidateId) {
-        try {
-            List<ApplicationWithJob> apps = appService.findByCandidateWithJobs(
-                    candidateId);
-            return ResponseEntity.ok(apps);
-        } catch (Exception e) {
-            logger.error(
-                    "Error fetching applications for candidate: {}",
-                    candidateId,
-                    e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-                    Map.of("message", "Failed to fetch applications"));
-        }
+    public ResponseEntity<List<ApplicationWithJob>> myApplications(
+        @AuthenticationPrincipal Long candidateId
+    ) {
+        List<ApplicationWithJob> apps = appService.findByCandidateWithJobs(
+            candidateId
+        );
+        return ResponseEntity.ok(apps);
     }
 
     // GET /api/applications/applicants — recruiter's applicants
     @GetMapping("/applicants")
-    public ResponseEntity<?> myApplicants(
-            @AuthenticationPrincipal Long recruiterID) {
-        try {
-            List<ApplicationWithCandidate> apps = appService.findByRecruiter(
-                    recruiterID);
-
-            return ResponseEntity.ok(apps);
-        } catch (Exception e) {
-            logger.error(
-                    "Error fetching applicants for recruiter: {}",
-                    recruiterID,
-                    e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-                    Map.of("message", "Failed to fetch applicants"));
-        }
+    public ResponseEntity<List<ApplicationWithCandidate>> myApplicants(
+        @AuthenticationPrincipal Long recruiterID
+    ) {
+        List<ApplicationWithCandidate> apps = appService.findByRecruiter(
+            recruiterID
+        );
+        return ResponseEntity.ok(apps);
     }
 
     // GET /api/applications/job/:id — applicants for a job (recruiter)
     @GetMapping("/job/{id}")
-    public ResponseEntity<?> jobApplications(
-            @AuthenticationPrincipal Long recruiterId,
-            @PathVariable("id") Long JobId) {
-        try {
-            List<JobApplicant> apps = appService.findJobApplicants(
-                    JobId,
-                    recruiterId);
-
-            return ResponseEntity.ok(apps);
-        } catch (Exception e) {
-            logger.error(
-                    "Error fetching applicants for job: {} by recruiter: {}",
-                    recruiterId +
-                            "\nJobID: " +
-                            JobId +
-                            "\nMessage: " +
-                            e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-                    Map.of("message", "Failed to fetch applicants"));
-        }
+    public ResponseEntity<List<JobApplicant>> jobApplications(
+        @AuthenticationPrincipal Long recruiterId,
+        @PathVariable("id") Long jobId
+    ) {
+        List<JobApplicant> apps = appService.findJobApplicants(
+            jobId,
+            recruiterId
+        );
+        return ResponseEntity.ok(apps);
     }
 
-    // PUT /api/applications/:id — update anything (recruiter)
+    // PUT /api/applications/:id — update application status (recruiter)
     @PutMapping("/{id}")
     public ResponseEntity<?> update(
-            @AuthenticationPrincipal Long recruiterId,
-            @Valid @RequestBody Application body,
-            @PathVariable Long id) {
-        try {
-            String message = appService.update(id, recruiterId, body);
-            return ResponseEntity.ok(message);
-        } catch (ResponseStatusException e) {
-            logger.warn(
-                    "Application error for candidate: {} — {} {}",
-                    id,
-                    e.getStatusCode(),
-                    e.getReason());
-            throw e;
-        } catch (Exception e) {
-            logger.error(
-                    "Error updating application: {} by recruiter: {}",
-                    id,
-                    recruiterId,
-                    e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-                    "Failed to update status");
-        }
+        @AuthenticationPrincipal Long recruiterId,
+        @Valid @RequestBody Application body,
+        @PathVariable Long id
+    ) {
+        String message = appService.update(id, recruiterId, body);
+        return ResponseEntity.ok(Map.of("message", message));
     }
 }
