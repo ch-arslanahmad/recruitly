@@ -27,7 +27,7 @@ public class SavedJobService {
 
     public String saveJob(Long userId, Long jobId) {
         Optional<Job> job = jobRepo.findById(
-            Optional.of(jobId),
+            jobId,
             Optional.empty()
         );
 

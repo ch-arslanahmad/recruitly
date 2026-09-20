@@ -53,18 +53,15 @@ public class JobRepository {
         return true;
     }
 
-    public Optional<Job> findById(
-        Optional<Long> id,
-        Optional<Long> recruiterId
-    ) {
+    public Optional<Job> findById(Long jobId, Optional<Long> recruiterId) {
         String query =
             "SELECT job.*, user.company AS company FROM job JOIN user ON job.recruiter_id = user.id WHERE 1=1 ";
 
         List<String> params = new ArrayList<>();
 
-        if (id.isPresent()) {
+        if (jobId != null) {
             query += "AND job.id = ?";
-            params.add(id.get().toString());
+            params.add(jobId.toString());
         }
         if (recruiterId.isPresent()) {
             query += "AND job.recruiter_id = ?";
@@ -134,29 +131,34 @@ public class JobRepository {
         return result;
     }
 
-    public List<Job> findAll(
+    public record JobFilter(
         Optional<String> type,
         Optional<String> location,
-        Optional<Integer> minSalary,
-        Optional<Long> recruiterId
+        Optional<Integer> minSalary
+    ) {}
+
+    // allowed for all due to having a public endpoint
+    public List<Job> findAll(
+        Optional<Long> recruiterId,
+        Optional<JobFilter> filter
     ) {
         String query =
             "SELECT job.*, user.company, (SELECT COUNT(*) FROM application WHERE job_id = job.id) AS applicant_count FROM job JOIN user ON job.recruiter_id = user.id WHERE 1=1 ";
 
         List<Object> params = new ArrayList<>();
 
-        if (type.isPresent()) {
+        if (filter.get().type().isPresent()) {
             query += "AND job.type = ? ";
-            params.add(type.get().toLowerCase());
+            params.add(filter.get().type().get().toLowerCase());
         }
-        if (location.isPresent()) {
+        if (filter.get().location().isPresent()) {
             query += "AND job.location = ? ";
-            params.add(location.get());
+            params.add(filter.get().location().get());
         }
 
-        if (minSalary.isPresent()) {
+        if (filter.get().minSalary().isPresent()) {
             query += "AND job.salary >= ? ";
-            params.add(minSalary.get());
+            params.add(filter.get().minSalary().get());
         }
 
         if (recruiterId.isPresent()) {
