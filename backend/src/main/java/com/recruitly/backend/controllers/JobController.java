@@ -1,7 +1,7 @@
 package com.recruitly.backend.controllers;
 
 import com.recruitly.backend.model.Job;
-import com.recruitly.backend.repository.JobRepository;
+import com.recruitly.backend.services.JobService;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Map;
@@ -21,19 +21,17 @@ public class JobController {
         JobController.class
     );
 
-    private final JobRepository jobRepo;
+    private final JobService jobService;
 
-    public JobController(JobRepository jobRepo) {
-        this.jobRepo = jobRepo;
+    public JobController(JobService jobService) {
+        this.jobService = jobService;
     }
 
     // GET /api/jobs — list all jobs
     @GetMapping
     public ResponseEntity<?> list() {
         try {
-            List<Job> jobs = jobRepo.findAll(
-                Optional.empty(),
-                Optional.empty(),
+            List<Job> jobs = jobService.list(
                 Optional.empty(),
                 Optional.empty()
             );
@@ -51,7 +49,7 @@ public class JobController {
     @GetMapping("/my")
     public ResponseEntity<?> myJobs(@AuthenticationPrincipal Long userID) {
         try {
-            List<Job> jobs = jobRepo.findByRecruiter(userID);
+            List<Job> jobs = jobService.myJobs(userID);
 
             return ResponseEntity.ok(Map.of("jobs", jobs));
         } catch (Exception e) {
@@ -70,7 +68,7 @@ public class JobController {
     @GetMapping("/stats")
     public ResponseEntity<?> stats(@AuthenticationPrincipal Long userID) {
         try {
-            Map<String, Object> repo = jobRepo.stats(userID);
+            Map<String, Object> repo = jobService.stats(userID);
             return ResponseEntity.ok(repo);
         } catch (Exception e) {
             logger.error("Error fetching stats for user: {}", userID, e);
@@ -84,10 +82,7 @@ public class JobController {
     @GetMapping("/{id}")
     public ResponseEntity<?> findById(@PathVariable Long id) {
         try {
-            Optional<Job> job = jobRepo.findById(
-                Optional.ofNullable(id),
-                Optional.empty()
-            );
+            Optional<Job> job = jobService.findById(id);
 
             if (job.isEmpty()) return ResponseEntity.status(
                 HttpStatus.NOT_FOUND
@@ -110,7 +105,7 @@ public class JobController {
     ) {
         try {
             job.setRecruiterId(recruiterId);
-            boolean savedJob = jobRepo.create(job);
+            boolean savedJob = jobService.create(job);
 
             if (!savedJob) return ResponseEntity.status(
                 HttpStatus.INTERNAL_SERVER_ERROR
@@ -139,22 +134,7 @@ public class JobController {
         @RequestBody Job job
     ) {
         try {
-            Optional<Job> oldJob = jobRepo.findById(
-                Optional.of(id),
-                Optional.empty()
-            );
-
-            if (oldJob.isEmpty()) return ResponseEntity.status(
-                HttpStatus.NOT_FOUND
-            ).body(Map.of("message", "Job does not exist"));
-
-            if (
-                !oldJob.get().getRecruiterId().equals(recruiterId)
-            ) return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
-                Map.of("message", "You are not authorized to update this job")
-            );
-
-            boolean isUpdated = jobRepo.update(id, recruiterId, job);
+            boolean isUpdated = jobService.update(id, recruiterId, job);
 
             if (!isUpdated) return ResponseEntity.status(
                 HttpStatus.INTERNAL_SERVER_ERROR
@@ -183,7 +163,7 @@ public class JobController {
         @AuthenticationPrincipal Long recruiterId
     ) {
         try {
-            boolean isDeleted = jobRepo.delete(id, recruiterId);
+            boolean isDeleted = jobService.delete(id, recruiterId);
 
             if (!isDeleted) return ResponseEntity.status(
                 HttpStatus.NOT_FOUND
