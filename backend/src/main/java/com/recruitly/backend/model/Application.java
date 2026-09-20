@@ -41,7 +41,7 @@ public class Application {
     public boolean allowTransition(Status newStatus) {
         switch (this.status) {
             case APPLIED:
-                return newStatus != Status.HIRED;
+                return newStatus != Status.HIRED && newStatus != Status.APPLIED;
             case SHORTLISTED:
                 return newStatus != Status.APPLIED;
             case REJECTED:

@@ -13,6 +13,7 @@ import java.util.Optional;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import org.yaml.snakeyaml.constructor.DuplicateKeyException;
 
 @Service
 public class ApplicationService {
@@ -31,7 +32,7 @@ public class ApplicationService {
     public Long apply(Long candidateID, Application app) {
         // fetch the job by ID
         Optional<Job> job = jobRepo.findById(
-            Optional.of(app.getJobId()),
+            app.getJobId(),
             Optional.empty()
         ); // fetch the job by ID
 
@@ -55,10 +56,10 @@ public class ApplicationService {
 
         boolean alreadyApplied = appRepo
             .find(
+                candidateID,
                 new Filter(
                     Optional.empty(),
                     Optional.of(job.get().getId()),
-                    Optional.empty(),
                     Optional.empty()
                 )
             )
@@ -72,9 +73,20 @@ public class ApplicationService {
             );
         }
 
-        boolean isCreated = appRepo.create(app);
-
-        if (!isCreated) {
+        try {
+            boolean isCreated = appRepo.create(app);
+            if (!isCreated) {
+                throw new ResponseStatusException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Failed to apply"
+                );
+            }
+        } catch (DuplicateKeyException e) {
+            throw new ResponseStatusException(
+                HttpStatus.CONFLICT,
+                "You have already applied to this job"
+            );
+        } catch (Exception e) {
             throw new ResponseStatusException(
                 HttpStatus.INTERNAL_SERVER_ERROR,
                 "Failed to apply"
@@ -94,9 +106,9 @@ public class ApplicationService {
 
         Application current = appRepo
             .find(
+                recruiterId,
                 new Filter(
                     Optional.of(id),
-                    Optional.empty(),
                     Optional.empty(),
                     Optional.empty()
                 )
@@ -109,6 +121,23 @@ public class ApplicationService {
             throw new ResponseStatusException(
                 HttpStatus.NOT_FOUND,
                 "Application not found"
+            );
+        }
+
+        Job application_job = jobRepo
+            .findById(current.getJobId(), Optional.empty())
+            .orElseThrow(() ->
+                new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "Job not found"
+                )
+            );
+
+        // Cross-recruiter update
+        if (!application_job.getRecruiterId().equals(recruiterId)) {
+            throw new ResponseStatusException(
+                HttpStatus.FORBIDDEN,
+                "You are not authorized to update this application"
             );
         }
 
@@ -174,6 +203,22 @@ public class ApplicationService {
     }
 
     public List<JobApplicant> findJobApplicants(Long jobId, Long recruiterID) {
+        Job job = jobRepo
+            .findById(jobId, Optional.empty())
+            .orElseThrow(() ->
+                new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "Job not found"
+                )
+            );
+
+        if (!job.getRecruiterId().equals(recruiterID)) {
+            throw new ResponseStatusException(
+                HttpStatus.FORBIDDEN,
+                "You are not authorized to view this job"
+            );
+        }
+
         return appRepo.findJobApplicants(jobId, recruiterID);
     }
 }
