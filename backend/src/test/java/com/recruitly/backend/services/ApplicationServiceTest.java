@@ -1,6 +1,7 @@
 package com.recruitly.backend.services;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
@@ -39,10 +40,11 @@ public class ApplicationServiceTest {
         job.setId(1L);
 
         when(jobRepo.findById(any(), any())).thenReturn(Optional.of(job));
+        when(appRepo.find(any(), any())).thenReturn(List.of());
+        when(appRepo.create(any(Application.class))).thenThrow(
+            new RuntimeException("Database failure")
+        );
 
-        when(appRepo.find(any())).thenReturn(List.of());
-
-        when(appRepo.create(any(Application.class))).thenReturn(false);
         assertThrows(ResponseStatusException.class, () ->
             appService.apply(1L, app)
         );
@@ -86,7 +88,7 @@ public class ApplicationServiceTest {
 
         when(jobRepo.findById(any(), any())).thenReturn(Optional.of(job));
 
-        when(appRepo.find(any())).thenReturn(List.of(app));
+        when(appRepo.find(any(), any())).thenReturn(List.of(app));
 
         assertThrows(ResponseStatusException.class, () ->
             appService.apply(1L, app)
@@ -102,12 +104,10 @@ public class ApplicationServiceTest {
         job.setId(1L);
 
         when(jobRepo.findById(any(), any())).thenReturn(Optional.of(job));
-
-        when(appRepo.find(any())).thenReturn(List.of());
-
+        when(appRepo.find(any(), any())).thenReturn(List.of());
         when(appRepo.create(any(Application.class))).thenReturn(true);
 
-        assertAll("Applied successfully", () -> appService.apply(1L, app));
+        assertDoesNotThrow(() -> appService.apply(1L, app));
     }
 
     @Test
@@ -121,7 +121,7 @@ public class ApplicationServiceTest {
         currentApp.setStatus(Application.Status.APPLIED); // current status
 
         // find application
-        when(appRepo.find(any())).thenReturn(List.of(currentApp));
+        when(appRepo.find(any(), any())).thenReturn(List.of(currentApp));
         when(appRepo.update(any(), any(), any())).thenReturn(true);
         assertAll("Updated successfully", () -> appService.update(1L, 1L, app));
     }
@@ -138,7 +138,7 @@ public class ApplicationServiceTest {
     void update_shouldThrow_whenApplicationNotFound() {
         Application app = new Application();
 
-        when(appRepo.find(any())).thenReturn(List.of());
+        when(appRepo.find(any(), any())).thenReturn(List.of());
         assertThrows(ResponseStatusException.class, () ->
             appService.update(1L, 1L, app)
         );
@@ -152,7 +152,7 @@ public class ApplicationServiceTest {
         Application currentApp = new Application();
         currentApp.setStatus(Application.Status.APPLIED);
 
-        when(appRepo.find(any())).thenReturn(List.of(currentApp));
+        when(appRepo.find(any(), any())).thenReturn(List.of(currentApp));
         assertThrows(ResponseStatusException.class, () ->
             appService.update(1L, 1L, app)
         );
@@ -168,7 +168,7 @@ public class ApplicationServiceTest {
         currentApp.setId(1L);
         currentApp.setStatus(Application.Status.APPLIED);
 
-        when(appRepo.find(any())).thenReturn(List.of(currentApp));
+        when(appRepo.find(any(), any())).thenReturn(List.of(currentApp));
         when(appRepo.update(any(), any(), any())).thenReturn(false);
         assertThrows(ResponseStatusException.class, () ->
             appService.update(1L, 1L, app)
