@@ -147,18 +147,19 @@ public class JobRepository {
 
         List<Object> params = new ArrayList<>();
 
-        if (filter.get().type().isPresent()) {
-            query += "AND job.type = ? ";
-            params.add(filter.get().type().get().toLowerCase());
-        }
-        if (filter.get().location().isPresent()) {
-            query += "AND job.location = ? ";
-            params.add(filter.get().location().get());
-        }
-
-        if (filter.get().minSalary().isPresent()) {
-            query += "AND job.salary >= ? ";
-            params.add(filter.get().minSalary().get());
+        if (filter.isPresent()) {
+            if (filter.get().type().isPresent()) {
+                query += "AND job.type = ? ";
+                params.add(filter.get().type().get().toLowerCase());
+            }
+            if (filter.get().location().isPresent()) {
+                query += "AND job.location = ? ";
+                params.add(filter.get().location().get());
+            }
+            if (filter.get().minSalary().isPresent()) {
+                query += "AND job.salary >= ? ";
+                params.add(filter.get().minSalary().get());
+            }
         }
 
         if (recruiterId.isPresent()) {

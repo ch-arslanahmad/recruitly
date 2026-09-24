@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api/jobs")
@@ -37,6 +38,13 @@ public class JobController {
             );
 
             return ResponseEntity.ok(jobs);
+        } catch (ResponseStatusException e) {
+            return ResponseEntity.status(e.getStatusCode()).body(
+                Map.of(
+                    "message",
+                    e.getReason() == null ? "Error: " : e.getReason()
+                )
+            );
         } catch (Exception e) {
             logger.error("Error listing jobs", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
@@ -52,6 +60,13 @@ public class JobController {
             List<Job> jobs = jobService.myJobs(userID);
 
             return ResponseEntity.ok(Map.of("jobs", jobs));
+        } catch (ResponseStatusException e) {
+            return ResponseEntity.status(e.getStatusCode()).body(
+                Map.of(
+                    "message",
+                    e.getReason() == null ? "Error: " : e.getReason()
+                )
+            );
         } catch (Exception e) {
             logger.error(
                 "Error fetching recruiter jobs for user: {}",
@@ -114,6 +129,13 @@ public class JobController {
             return ResponseEntity.status(HttpStatus.CREATED).body(
                 Map.of("message", "Job created successfully", "id", job.getId())
             );
+        } catch (ResponseStatusException e) {
+            return ResponseEntity.status(e.getStatusCode()).body(
+                Map.of(
+                    "message",
+                    e.getReason() == null ? "Error: " : e.getReason()
+                )
+            );
         } catch (Exception e) {
             logger.error(
                 "Error creating job for recruiter: {}",
@@ -143,6 +165,13 @@ public class JobController {
             return ResponseEntity.ok(
                 Map.of("message", "Job updated successfully")
             );
+        } catch (ResponseStatusException e) {
+            return ResponseEntity.status(e.getStatusCode()).body(
+                Map.of(
+                    "message",
+                    e.getReason() == null ? "Error: " : e.getReason()
+                )
+            );
         } catch (Exception e) {
             logger.error(
                 "Error updating job: {} by recruiter: {}",
@@ -171,6 +200,13 @@ public class JobController {
 
             return ResponseEntity.ok(
                 Map.of("message", "Job deleted successfully")
+            );
+        } catch (ResponseStatusException e) {
+            return ResponseEntity.status(e.getStatusCode()).body(
+                Map.of(
+                    "message",
+                    e.getReason() == null ? "Error: " : e.getReason()
+                )
             );
         } catch (Exception e) {
             logger.error(

@@ -31,10 +31,7 @@ public class ApplicationService {
 
     public Long apply(Long candidateID, Application app) {
         // fetch the job by ID
-        Optional<Job> job = jobRepo.findById(
-            app.getJobId(),
-            Optional.empty()
-        ); // fetch the job by ID
+        Optional<Job> job = jobRepo.findById(app.getJobId(), Optional.empty()); // fetch the job by ID
 
         // error if job does not exist
         if (job.isEmpty()) {
@@ -56,11 +53,11 @@ public class ApplicationService {
 
         boolean alreadyApplied = appRepo
             .find(
-                candidateID,
+                null,
                 new Filter(
                     Optional.empty(),
-                    Optional.of(job.get().getId()),
-                    Optional.empty()
+                    Optional.of(app.getJobId()),
+                    Optional.of(candidateID)
                 )
             )
             .stream()
@@ -86,6 +83,8 @@ public class ApplicationService {
                 HttpStatus.CONFLICT,
                 "You have already applied to this job"
             );
+        } catch (ResponseStatusException e) {
+            throw e;
         } catch (Exception e) {
             throw new ResponseStatusException(
                 HttpStatus.INTERNAL_SERVER_ERROR,
@@ -106,12 +105,8 @@ public class ApplicationService {
 
         Application current = appRepo
             .find(
-                recruiterId,
-                new Filter(
-                    Optional.of(id),
-                    Optional.empty(),
-                    Optional.empty()
-                )
+                null,
+                new Filter(Optional.of(id), Optional.empty(), Optional.empty())
             )
             .stream()
             .findFirst()

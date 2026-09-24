@@ -20,18 +20,6 @@ public class JobService {
     }
 
     public boolean create(Job job) {
-        Optional<Job> existingJob = jobRepo.findById(
-            job.getId(),
-            Optional.empty()
-        );
-
-        if (existingJob.isPresent()) {
-            throw new ResponseStatusException(
-                HttpStatus.CONFLICT,
-                "Job already exists"
-            );
-        }
-
         // recruiter id must be specified
         if (job.getRecruiterId() == null) {
             throw new ResponseStatusException(
@@ -76,7 +64,10 @@ public class JobService {
     }
 
     public boolean delete(Long jobId, Long recruiterId) {
-        Optional<Job> existingJob = jobRepo.findById(jobId, Optional.empty());
+        Optional<Job> existingJob = jobRepo.findById(
+            jobId,
+            Optional.of(recruiterId)
+        );
 
         if (existingJob.isEmpty()) {
             throw new ResponseStatusException(
