@@ -32,7 +32,9 @@ public class ApplicationControllerTest extends BaseControllerTest {
                 post("/api/applications")
                     .contentType(MediaType.APPLICATION_JSON)
                     .header("Authorization", "Bearer " + token)
-                    .content(toJson(Map.of("job_id", jobId, "status", "applied")))
+                    .content(
+                        toJson(Map.of("job_id", jobId, "status", "applied"))
+                    )
             )
             .andExpect(status().isCreated());
     }
@@ -56,7 +58,9 @@ public class ApplicationControllerTest extends BaseControllerTest {
                 post("/api/applications")
                     .contentType(MediaType.APPLICATION_JSON)
                     .header("Authorization", "Bearer " + token)
-                    .content(toJson(Map.of("job_id", jobId, "status", "applied")))
+                    .content(
+                        toJson(Map.of("job_id", jobId, "status", "applied"))
+                    )
             )
             .andExpect(status().isConflict());
     }
@@ -68,6 +72,8 @@ public class ApplicationControllerTest extends BaseControllerTest {
         String recruiter_token = registerAndLogin("recruiter");
         Long jobId = createJob(recruiter_token); // create job with recruiter token
         String token = registerAndLogin("applicant");
+
+        applyToJob(token, jobId);
 
         // close the job
         mockMvc.perform(
@@ -154,9 +160,7 @@ public class ApplicationControllerTest extends BaseControllerTest {
         mockMvc
             .perform(
                 put("/api/applications/" + applicationId)
-                    .content(
-                        toJson(Map.of("job_id", jobId, "status", "applied"))
-                    )
+                    .content(toJson(Map.of("status", "shortlisted")))
                     .contentType(MediaType.APPLICATION_JSON)
                     .header("Authorization", "Bearer " + recruiter_token)
             )
@@ -182,7 +186,63 @@ public class ApplicationControllerTest extends BaseControllerTest {
             .andExpect(status().isUnauthorized());
     }
 
-    // see job applicants
+    @Test
+    public void updateApplication_shouldReturn403_whenAnotherRecruiter()
+        throws Exception {
+        String recruiter_token = registerAndLogin("recruiter");
+        Long jobId = createJob(recruiter_token);
+
+        String token = registerAndLogin("applicant");
+
+        Long applicationId = applyToJob(token, jobId);
+
+        String second_recruiter_token = registerAndLogin("recruiter");
+
+        mockMvc
+            .perform(
+                put("/api/applications/" + applicationId)
+                    .header("Authorization", "Bearer " + second_recruiter_token)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(toJson(Map.of("status", "applied")))
+            )
+            .andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void updateApplication_shouldReturn403_whenNonRecruiter()
+        throws Exception {
+        String token = registerAndLogin("applicant");
+        String recruiter_token = registerAndLogin("recruiter");
+        Long jobId = createJob(recruiter_token);
+        Long applicationId = applyToJob(token, jobId);
+
+        mockMvc
+            .perform(
+                put("/api/applications/" + applicationId)
+                    .header("Authorization", "Bearer " + token)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(toJson(Map.of("status", "applied")))
+            )
+            .andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void updateApplication_shouldReturn400_whenInvalidStatusTransition()
+        throws Exception {
+        String recruiter_token = registerAndLogin("recruiter");
+        String token = registerAndLogin("applicant");
+        Long jobId = createJob(recruiter_token);
+        Long applicationId = applyToJob(token, jobId);
+
+        mockMvc
+            .perform(
+                put("/api/applications/" + applicationId)
+                    .header("Authorization", "Bearer " + recruiter_token)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(toJson(Map.of("status", "hired")))
+            )
+            .andExpect(status().isBadRequest());
+    }
 
     @Test
     public void seeJobApplicants_shouldReturn200_whenAuth() throws Exception {
@@ -212,5 +272,27 @@ public class ApplicationControllerTest extends BaseControllerTest {
         mockMvc
             .perform(get("/api/applications/job/" + jobId))
             .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void seeJobApplicants_shouldReturn403_WhenAnotherRecruiter()
+        throws Exception {
+        String recruiter_token = registerAndLogin("recruiter");
+        Long jobId = createJob(recruiter_token);
+
+        String token = registerAndLogin("applicant");
+
+        String second_recruiter_token = registerAndLogin("recruiter");
+
+        applyToJob(token, jobId);
+
+        mockMvc
+            .perform(
+                get("/api/applications/job/" + jobId).header(
+                    "Authorization",
+                    "Bearer " + second_recruiter_token
+                )
+            )
+            .andExpect(status().isForbidden());
     }
 }

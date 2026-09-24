@@ -118,8 +118,15 @@ public class ApplicationServiceTest {
 
         Application currentApp = new Application();
         currentApp.setId(1L);
+        currentApp.setJobId(1L);
         currentApp.setStatus(Application.Status.APPLIED); // current status
 
+        Job job = new Job();
+        job.setId(1L);
+        job.setRecruiterId(1L);
+
+        // find job
+        when(jobRepo.findById(any(), any())).thenReturn(Optional.of(job));
         // find application
         when(appRepo.find(any(), any())).thenReturn(List.of(currentApp));
         when(appRepo.update(any(), any(), any())).thenReturn(true);
@@ -151,7 +158,13 @@ public class ApplicationServiceTest {
 
         Application currentApp = new Application();
         currentApp.setStatus(Application.Status.APPLIED);
+        currentApp.setJobId(1L);
 
+        Job job = new Job();
+        job.setId(1L);
+        job.setRecruiterId(1L);
+
+        when(jobRepo.findById(any(), any())).thenReturn(Optional.of(job));
         when(appRepo.find(any(), any())).thenReturn(List.of(currentApp));
         assertThrows(ResponseStatusException.class, () ->
             appService.update(1L, 1L, app)
@@ -162,12 +175,18 @@ public class ApplicationServiceTest {
     void update_shouldThrow_whenUpdateFails() {
         Application app = new Application();
         app.setId(1L);
-        app.setStatus(Application.Status.APPLIED);
+        app.setStatus(Application.Status.SHORTLISTED);
 
         Application currentApp = new Application();
         currentApp.setId(1L);
+        currentApp.setJobId(1L);
         currentApp.setStatus(Application.Status.APPLIED);
 
+        Job job = new Job();
+        job.setId(1L);
+        job.setRecruiterId(1L);
+
+        when(jobRepo.findById(any(), any())).thenReturn(Optional.of(job));
         when(appRepo.find(any(), any())).thenReturn(List.of(currentApp));
         when(appRepo.update(any(), any(), any())).thenReturn(false);
         assertThrows(ResponseStatusException.class, () ->

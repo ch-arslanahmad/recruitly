@@ -3,7 +3,10 @@ package com.recruitly.backend.services;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import com.recruitly.backend.model.Job;
+import com.recruitly.backend.repository.JobRepository;
 import com.recruitly.backend.repository.UserRepository;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -16,6 +19,9 @@ public class SavedJobServiceTest {
 
     @Mock
     UserRepository userRepo;
+
+    @Mock
+    JobRepository jobRepo;
 
     @InjectMocks
     SavedJobService savedJobService;
@@ -37,6 +43,7 @@ public class SavedJobServiceTest {
 
     @Test
     void saveJob_shouldReturnTrue_whenJobSaved() {
+        when(jobRepo.findById(any(), any())).thenReturn(Optional.of(new Job()));
         when(userRepo.isSavedJob(1L, 10L)).thenReturn(false);
         when(userRepo.saveJob(1L, 10L)).thenReturn(true);
         String result = savedJobService.saveJob(1L, 10L);
@@ -45,6 +52,7 @@ public class SavedJobServiceTest {
 
     @Test
     void saveJob_shouldReturnThrow_whenAlreadySaved() {
+        when(jobRepo.findById(any(), any())).thenReturn(Optional.of(new Job()));
         when(userRepo.isSavedJob(1L, 10L)).thenReturn(true);
         assertThrows(ResponseStatusException.class, () ->
             savedJobService.saveJob(1L, 10L)
@@ -53,6 +61,7 @@ public class SavedJobServiceTest {
 
     @Test
     void saveJob_shouldReturnThrow_whenSaveFails() {
+        when(jobRepo.findById(any(), any())).thenReturn(Optional.of(new Job()));
         when(userRepo.isSavedJob(1L, 10L)).thenReturn(false);
         when(userRepo.saveJob(1L, 10L)).thenReturn(false);
         assertThrows(ResponseStatusException.class, () ->
