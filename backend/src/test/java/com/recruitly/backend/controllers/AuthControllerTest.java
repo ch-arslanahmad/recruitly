@@ -21,6 +21,9 @@ public class AuthControllerTest extends BaseControllerTest {
 
     @Test
     public void register_shouldReturn409_WhenUserExist() throws Exception {
+        String username = "duptest_" + System.currentTimeMillis();
+
+        // create the user first (self-contained — no seeded DB data needed)
         mockMvc
             .perform(
                 post("/api/auth/register")
@@ -31,13 +34,33 @@ public class AuthControllerTest extends BaseControllerTest {
                                 "name",
                                 "Test User",
                                 "username",
-                                "test",
+                                username,
                                 "password",
                                 "password123",
                                 "role",
-                                "applicant",
-                                "company",
-                                "Acme"
+                                "applicant"
+                            )
+                        )
+                    )
+            )
+            .andExpect(status().isCreated());
+
+        // registering the same username again → 409
+        mockMvc
+            .perform(
+                post("/api/auth/register")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        toJson(
+                            Map.of(
+                                "name",
+                                "Test User",
+                                "username",
+                                username,
+                                "password",
+                                "password123",
+                                "role",
+                                "applicant"
                             )
                         )
                     )
