@@ -96,6 +96,68 @@ public class ApplicationControllerTest extends BaseControllerTest {
             .andExpect(status().isBadRequest());
     }
 
+    // apply when JOB is expired
+    @Test
+    public void apply_shouldReturn400_whenJobExpired() throws Exception {
+        String token = registerAndLogin("applicant");
+        String recruiterToken = registerAndLogin("recruiter");
+        Long jobId = createJob(recruiterToken);
+
+        // expire the job (recruiter owns the job — must use their token)
+        mockMvc
+            .perform(
+                put("/api/jobs/" + jobId)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header("Authorization", "Bearer " + recruiterToken)
+                    .content(
+                        toJson(Map.of("expires_at", "2020-01-01 00:00:00"))
+                    )
+            )
+            .andExpect(status().isOk());
+
+        mockMvc
+            .perform(
+                post("/api/applications")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header("Authorization", "Bearer " + token)
+                    .content(
+                        toJson(Map.of("job_id", jobId, "status", "applied"))
+                    )
+            )
+            .andExpect(status().isBadRequest());
+    }
+
+    // apply to a job whose deadline is in the future (guards against inverted date comparison)
+    @Test
+    public void apply_shouldReturn201_whenJobNotYetExpired() throws Exception {
+        String token = registerAndLogin("applicant");
+        String recruiterToken = registerAndLogin("recruiter");
+        Long jobId = createJob(recruiterToken);
+
+        // set a future deadline
+        mockMvc
+            .perform(
+                put("/api/jobs/" + jobId)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header("Authorization", "Bearer " + recruiterToken)
+                    .content(
+                        toJson(Map.of("expires_at", "2030-01-01 00:00:00"))
+                    )
+            )
+            .andExpect(status().isOk());
+
+        mockMvc
+            .perform(
+                post("/api/applications")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header("Authorization", "Bearer " + token)
+                    .content(
+                        toJson(Map.of("job_id", jobId, "status", "applied"))
+                    )
+            )
+            .andExpect(status().isCreated());
+    }
+
     // get applications
     @Test
     public void myApplications_shouldReturn200() throws Exception {

@@ -111,6 +111,23 @@ public class ApplicationServiceTest {
     }
 
     @Test
+    void apply_shouldThrow_whenJobExpired() {
+        Application app = new Application();
+        app.setJobId(1L);
+
+        Job job = new Job();
+        job.setId(1L);
+        job.setStatus(Job.Status.OPEN);
+        job.setExpiresAt("2020-01-01 00:00:00");
+
+        when(jobRepo.findById(any(), any())).thenReturn(Optional.of(job));
+
+        assertThrows(ResponseStatusException.class, () ->
+            appService.apply(1L, app)
+        );
+    }
+
+    @Test
     void update_shouldReturnSuccess() {
         Application app = new Application();
         app.setId(1L);
