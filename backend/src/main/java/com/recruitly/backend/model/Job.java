@@ -46,6 +46,9 @@ public class Job {
     private Long id;
     private Long recruiterId;
 
+    @JsonProperty("expires_at")
+    private String expiresAt;
+
     @NotBlank(message = "Company is required")
     private String company;
 

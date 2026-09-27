@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS job (
     salary INTEGER NOT NULL, -- in USD($).
     type TEXT NOT NULL CHECK(type IN ('full-time', 'part-time', 'contract', 'remote')),
     created_at TEXT DEFAULT (datetime('now', 'localtime')),
+    expires_at TEXT DEFAULT (datetime('now', '+7 days', 'localtime')),
     UNIQUE(recruiter_id, title) -- prevents duplicate jobs by the same recruiter with the same title.
 );
 

@@ -307,9 +307,13 @@ Request:
   "salary": 75000,
   "type": "full-time",
   "company": "Recruitly Labs",
-  "status": "open"
+  "status": "open",
+  "expires_at": "2025-01-01 15:30:00"
 }
 ```
+
+> [!note]
+> `expires_at` is an optional parameter with format YYYY-MM-DD HH:MM:SS. If omitted, defaults to 7 days from creation.
 
 Success response: `201 Created`
 
@@ -399,9 +403,14 @@ Request:
 
 ```json
 {
-  "job_id": 10
+  "job_id": 10,
+  "status": "applied"
 }
 ```
+
+> [!note]
+> `status` is required by the request model (`@NotNull`), but the server always stores `applied` regardless of what you send, you can't apply as
+> anything else.
 
 Success response: `201 Created`
 
@@ -521,8 +530,10 @@ Request:
 
 Success response: `200 OK`
 
-```text
-Successfully updated status
+```json
+{
+  "message": "Successfully updated status"
+}
 ```
 
 Common errors:

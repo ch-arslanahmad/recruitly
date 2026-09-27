@@ -85,6 +85,7 @@ public class JobRepository {
                 j.setLocation(rs.getString("location"));
                 j.setSalary(rs.getInt("salary"));
                 j.setCreatedAt(rs.getString("created_at"));
+                j.setExpiresAt(rs.getString("expires_at"));
                 j.setType(
                     Job.Type.valueOf(
                         rs.getString("type").toUpperCase().replace("-", "_")
@@ -119,6 +120,7 @@ public class JobRepository {
                 job.setLocation(rs.getString("location"));
                 job.setSalary(rs.getInt("salary"));
                 job.setCreatedAt(rs.getString("created_at"));
+                job.setExpiresAt(rs.getString("expires_at"));
                 job.setType(
                     Job.Type.valueOf(
                         rs.getString("type").toUpperCase().replace("-", "_")
@@ -187,6 +189,7 @@ public class JobRepository {
                     job.setLocation(rs.getString("location"));
                     job.setSalary(rs.getInt("salary"));
                     job.setCreatedAt(rs.getString("created_at"));
+                job.setExpiresAt(rs.getString("expires_at"));
                     job.setType(
                         Job.Type.valueOf(
                             rs.getString("type").toUpperCase().replace("-", "_")
@@ -245,6 +248,10 @@ public class JobRepository {
         if (job.getSalary() != null) {
             sets.add("salary = ?");
             params.add(job.getSalary());
+        }
+        if (job.getExpiresAt() != null) {
+            sets.add("expires_at = ?");
+            params.add(job.getExpiresAt());
         }
 
         if (job.getType() != null) {

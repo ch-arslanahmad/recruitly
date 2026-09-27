@@ -8,6 +8,10 @@ import com.recruitly.backend.repository.ApplicationRepository.ApplicationWithJob
 import com.recruitly.backend.repository.ApplicationRepository.Filter;
 import com.recruitly.backend.repository.ApplicationRepository.JobApplicant;
 import com.recruitly.backend.repository.JobRepository;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.http.HttpStatus;
@@ -39,6 +43,30 @@ public class ApplicationService {
                 HttpStatus.NOT_FOUND,
                 "Job not found"
             );
+        }
+
+        // error if job has expired
+        String expiresAtStr = job.get().getExpiresAt();
+        if (expiresAtStr != null && !expiresAtStr.isBlank()) {
+            try {
+                DateTimeFormatter fmt = DateTimeFormatter.ofPattern(
+                    "yyyy-MM-dd HH:mm:ss"
+                );
+                LocalDateTime expiresAt = LocalDateTime.parse(
+                    expiresAtStr,
+                    fmt
+                );
+                if (expiresAt.isBefore(LocalDateTime.now())) {
+                    throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "This job has expired"
+                    );
+                }
+            } catch (ResponseStatusException e) {
+                throw e; // re-throw the 400
+            } catch (DateTimeParseException e) {
+                // corrupted date → don't block applications, just log/ignore
+            }
         }
 
         // error if job is closed
@@ -137,25 +165,21 @@ public class ApplicationService {
         }
 
         if (!current.allowTransition(body.getStatus())) {
+            // most specific rule first so the error message is accurate
             if (
-                body.getStatus().toString().equals("HIRED") ||
-                body.getStatus().toString().equals("REJECTED")
+                current.getStatus() == Application.Status.APPLIED &&
+                body.getStatus() == Application.Status.HIRED
             ) {
                 throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
-                    "Cannot change status from " +
-                        current.getStatus() +
-                        " to " +
-                        body.getStatus() +
-                        ".\n" +
-                        body.getStatus() +
-                        " is the final status."
+                    "Cannot change status from APPLIED to HIRED. " +
+                        "Must go through SHORTLISTED first."
                 );
             }
 
             if (
-                current.getStatus().toString().equals("APPLIED") &&
-                body.getStatus().toString().equals("HIRED")
+                current.getStatus() == Application.Status.REJECTED ||
+                current.getStatus() == Application.Status.HIRED
             ) {
                 throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
@@ -163,8 +187,9 @@ public class ApplicationService {
                         current.getStatus() +
                         " to " +
                         body.getStatus() +
-                        ".\n" +
-                        "Must go through the 'SHORTLISTED' first."
+                        ". " +
+                        current.getStatus() +
+                        " is a final status."
                 );
             }
 
