@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/applications")
 public class ApplicationController {
 
-
     private final ApplicationService appService;
 
     public ApplicationController(ApplicationService appService) {
@@ -78,6 +77,12 @@ public class ApplicationController {
         @Valid @RequestBody Application body,
         @PathVariable Long id
     ) {
+        if (body.getStatus() == null) {
+            return ResponseEntity.badRequest().body(
+                Map.of("message", "Status is required")
+            );
+        }
+
         String message = appService.update(id, recruiterId, body);
         return ResponseEntity.ok(Map.of("message", message));
     }

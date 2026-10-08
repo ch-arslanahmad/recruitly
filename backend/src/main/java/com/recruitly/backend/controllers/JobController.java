@@ -153,7 +153,7 @@ public class JobController {
     public ResponseEntity<?> update(
         @PathVariable Long id,
         @AuthenticationPrincipal Long recruiterId,
-        @RequestBody Job job
+        @Valid @RequestBody Job job
     ) {
         try {
             boolean isUpdated = jobService.update(id, recruiterId, job);

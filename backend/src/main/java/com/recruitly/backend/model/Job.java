@@ -49,14 +49,12 @@ public class Job {
     @JsonProperty("expires_at")
     private String expiresAt;
 
-    @NotBlank(message = "Company is required")
     private String company;
 
     @NotBlank(message = "Title is required")
     @Size(min = 5, max = 50)
     private String title;
 
-    @NotNull(message = "Status is required")
     private Status status;
 
     @JsonProperty("about_role")

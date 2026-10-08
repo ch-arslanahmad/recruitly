@@ -3,7 +3,6 @@ package com.recruitly.backend.model;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
@@ -33,7 +32,6 @@ public class Application {
 
     private Long candidateId;
 
-    @NotNull(message = "Status is required")
     private Status status;
 
     private String createdAt;

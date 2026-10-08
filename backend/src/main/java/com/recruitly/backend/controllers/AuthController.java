@@ -27,9 +27,13 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@Valid @RequestBody User user) {
+    public ResponseEntity<?> login(@RequestBody User user) {
         String token = authService.login(user);
-        log.info("User: {} ({}) logged in successfully!", user.getUsername(), user.getId());
+        log.info(
+            "User: {} ({}) logged in successfully!",
+            user.getUsername(),
+            user.getId()
+        );
 
         return ResponseEntity.ok(
             Map.of("token", token, "user", user.getUserMap())
